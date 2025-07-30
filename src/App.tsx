@@ -1,7 +1,8 @@
+import ApplicationsPage from './pages/ApplicationsPage';
 
 function App() {
   return (
-    <></>
+    <ApplicationsPage />
   );
 }
 
