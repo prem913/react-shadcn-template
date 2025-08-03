@@ -35,9 +35,6 @@ export const FunctionResponseBubble: React.FC<FunctionResponseBubbleProps> = ({ 
         </CardHeader>
         <CardContent className="text-xs relative break-words">
           <p className="text-xs text-red-500">Error parsing function response: {data}</p>
-          <span className="absolute bottom-1 right-2 text-[0.6rem] text-gray-900/70 dark:text-gray-50/70">
-            {timestamp}
-          </span>
         </CardContent>
       </Card>
     );
@@ -47,9 +44,9 @@ export const FunctionResponseBubble: React.FC<FunctionResponseBubbleProps> = ({ 
   const summary = parsedData.response.result ? `Result: ${parsedData.response.result.substring(0, 50)}${parsedData.response.result.length > 50 ? "..." : ""}` : "No result";
 
   return (
-    <Card className={cn("max-w-xl bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-50", isUser ? "ml-auto" : "mr-auto", "shadow-sm", isUser ? "rounded-br-none" : "rounded-bl-none")}>
+    <Card className={cn("w-[50%] bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-50", isUser ? "ml-auto" : "mr-auto", "shadow-sm", isUser ? "rounded-br-none" : "rounded-bl-none")}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle className="text-sm font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
             {isOpen ? `Function Response: ${parsedData.name}` : `Response: ${summary}`}
           </CardTitle>
@@ -61,16 +58,13 @@ export const FunctionResponseBubble: React.FC<FunctionResponseBubbleProps> = ({ 
           </CollapsibleTrigger>
         </CardHeader>
         <CollapsibleContent className="overflow-hidden">
-          <CardContent className="text-xs relative p-3 pt-0 break-words">
+          <CardContent className="text-xs relative pt-0 break-words">
             <div className="font-medium mb-1">
               <span>Result:</span>
             </div>
             <pre className="whitespace-pre-wrap break-all bg-green-50 dark:bg-green-800 p-2 rounded-md text-green-800 dark:text-green-200 mb-6 max-h-40 overflow-y-auto">
               <code>{parsedData.response.result}</code>
             </pre>
-            <span className="absolute bottom-1 right-2 text-[0.6rem] text-green-900/70 dark:text-green-50/70">
-              {timestamp}
-            </span>
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
