@@ -17,13 +17,11 @@ export const useSocket = () => {
     addChatMessage,
     setConnectionStatus,
     appendBotMessage,
-    finalizeBotMessage,
   } = useAppStore((state) => ({
     selectedApplication: state.selectedApplication,
     addChatMessage: state.addChatMessage,
     setConnectionStatus: state.setConnectionStatus,
-    appendBotMessage: state.appendBotMessage,
-    finalizeBotMessage: state.finalizeBotMessage,
+    appendBotMessage: state.addBotMessage,
   }));
 
   const clientIdRef = useRef<string>(uuidv4()); // Stable client ID across re-renders
@@ -41,16 +39,6 @@ export const useSocket = () => {
         case 'text':
           // Append the text chunk to the current bot message
           appendBotMessage(message.data);
-          break;
-        case 'turn_complete':
-          // Finalize the bot's message stream
-          finalizeBotMessage();
-          break;
-        case 'end':
-        case 'interrupted':
-          // Handle session end or interruption
-          console.log(`Session event: ${message.type}`);
-          finalizeBotMessage();
           break;
       }
     };
@@ -73,7 +61,7 @@ export const useSocket = () => {
       disconnectWebSocket();
       setConnectionStatus('disconnected');
     };
-  }, [selectedApplication, setConnectionStatus, appendBotMessage, finalizeBotMessage]);
+  }, [selectedApplication, setConnectionStatus, appendBotMessage]);
 
   const sendMessage = (text: string) => {
     if (!text.trim()) return;
@@ -83,6 +71,7 @@ export const useSocket = () => {
       sender: 'user',
       content: text,
       timestamp: new Date(),
+      type: 'text',
     };
     addChatMessage(userMessage);
 

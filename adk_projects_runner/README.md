@@ -58,4 +58,4 @@ yarn lint
 ### Todo List
 - [x] Understand and implement the user's specific request.
 - [x] Update this README with more specific project details as they become clear.
-- [ ] Implement new features as per user's request.
+- [ ] Implement new features as per user's request. (Waiting for user to provide details)

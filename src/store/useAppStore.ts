@@ -42,7 +42,8 @@ interface AppState {
   setSelectedApplication: (app: Application | null) => void;
   setConnectionStatus: (status: ConnectionStatus) => void;
   setIsBotTyping: (isTyping: boolean) => void;
-  appendBotMessage: (chunk: string, type?: 'text' | 'function_call' | 'function_response', data?: any) => void;
+  // Refactored to always create a new message
+  addBotMessage: (content: string, type?: 'text' | 'function_call' | 'function_response', data?: any) => void;
   finalizeBotMessage: () => void;
 }
 
@@ -91,35 +92,25 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setConnectionStatus: (status) => set({ connectionStatus: status }),
-  setIsBotTyping: (isTyping) => set({ isBotTyping: isTyping }),
+  setIsBotTyping: (isTyping) => set({ isTyping: isTyping }),
 
-  appendBotMessage: (chunk, type = 'text', data = undefined) => {
+  // Refactored function: Always creates a new ChatMessage
+  addBotMessage: (content, type = 'text', data = undefined) => {
     set((state) => {
-      const lastMessage = state.chatMessages[state.chatMessages.length - 1];
-      // If the last message was from the bot and we are in a "typing" state, append to it
-      if (lastMessage && lastMessage.sender === 'bot' && state.isBotTyping && lastMessage.type === type) {
-        const updatedMessages = [...state.chatMessages];
-        updatedMessages[updatedMessages.length - 1] = {
-          ...lastMessage,
-          content: lastMessage.content + chunk,
-          data: data || lastMessage.data // Update data if provided
-        };
-        return { chatMessages: updatedMessages };
-      } else {
-        // Otherwise, create a new bot message
-        const newBotMessage: ChatMessage = {
-          id: uuidv4(),
-          sender: 'bot',
-          content: chunk,
-          timestamp: new Date(),
-          type: type,
-          data: data,
-        };
-        return {
-          chatMessages: [...state.chatMessages, newBotMessage],
-          isBotTyping: true, // Start "typing"
-        };
-      }
+      const newBotMessage: ChatMessage = {
+        id: uuidv4(),
+        sender: 'bot',
+        content: content,
+        timestamp: new Date(),
+        type: type,
+        data: data,
+      };
+      return {
+        chatMessages: [...state.chatMessages, newBotMessage],
+        // isBotTyping should be managed separately now,
+        // typically set to true when bot starts and false when done.
+        // For individual message addition, we don't change typing state here.
+      };
     });
   },
 
@@ -127,4 +118,3 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ isBotTyping: false });
   },
 }));
-

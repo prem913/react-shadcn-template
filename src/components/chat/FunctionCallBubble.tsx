@@ -27,6 +27,7 @@ const FunctionCallBubble: React.FC<FunctionCallBubbleProps> = ({ message, isUser
       ? 'bg-blue-600 text-white rounded-br-none'
       : 'bg-muted rounded-bl-none',
     {
+      // Prioritize distinct colors for function messages
       'bg-purple-600 text-white': isUser && (message.type === 'function_call' || message.type === 'function_response'),
       'bg-orange-600 text-white': !isUser && (message.type === 'function_call' || message.type === 'function_response'),
     }
@@ -39,16 +40,21 @@ const FunctionCallBubble: React.FC<FunctionCallBubbleProps> = ({ message, isUser
 
   const getSummary = () => {
     if (message.type === 'function_call') {
-      return message.content || (message.data?.function_name ? `Function Call: ${message.data.function_name}` : 'Function Call Details');
+      const toolName = message.data?.tool_name || 'unknown_tool';
+      const functionName = message.data?.function_name || 'unknown_function';
+      const args = message.data?.args ? JSON.stringify(message.data.args) : '';
+      return `Function Call: ${toolName}.${functionName}(${args})`;
     } else if (message.type === 'function_response') {
+      const toolName = message.data?.tool_name || 'unknown_tool';
+      const functionName = message.data?.function_name || 'unknown_function';
       const resultSummary = message.data?.result
         ? typeof message.data.result === 'string'
-          ? `Function Response: ${message.data.result.substring(0, 50)}${message.data.result.length > 50 ? '...' : ''}`
-          : 'Function Response: Data'
-        : 'Function Response Details';
-      return message.content || resultSummary;
+          ? message.data.result.substring(0, 50) + (message.data.result.length > 50 ? '...' : '')
+          : 'Result Data'
+        : 'No Result';
+      return `Function Response from ${toolName}.${functionName}: ${resultSummary}`;
     }
-    return 'Details';
+    return 'Details'; // Fallback, though message.type should always be function_call or function_response here
   };
 
   return (

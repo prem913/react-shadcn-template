@@ -3,27 +3,13 @@ import { useSocket } from '../../hooks/useSocket';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Send } from 'lucide-react';
-import { useAppStore } from '../../store/useAppStore'; // Import useAppStore
-import { v4 as uuidv4 } from 'uuid'; // Import uuid for unique IDs
 
 const ChatInput: React.FC = () => {
   const [message, setMessage] = useState('');
   const { sendMessage } = useSocket();
-  const addChatMessage = useAppStore((state) => state.addChatMessage); // Get addChatMessage from the store
 
   const handleSendMessage = () => {
     if (message.trim()) {
-      // Create the user message object
-      const userMessage = {
-        sender: 'user',
-        content: message.trim(),
-        type: 'text',
-      };
-      
-      // Add the user message to the chat messages state
-      addChatMessage(userMessage);
-
-      // Send the message via socket (assuming sendMessage expects a string)
       sendMessage(message);
 
       setMessage('');
