@@ -30,7 +30,8 @@ export const connectWebSocket = (clientId: string, onMessage: MessageHandler): P
     }
 
     // Establish a new connection
-    const wsUrl = `ws://localhost:8000/ws/${clientId}`;
+    const wsUrl = import.meta.env.VITE_WEBSOCKET_URL || `ws://localhost:8000/ws/${clientId}`;
+    console.log(`Attempting to connect to WebSocket at: ${wsUrl}`);
     socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
@@ -47,13 +48,23 @@ export const connectWebSocket = (clientId: string, onMessage: MessageHandler): P
       }
     };
 
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      reject(error);
+    socket.onerror = (event) => {
+      console.error('WebSocket error occurred:', event);
+      // Attempt to get more specific error information
+      if ((event as WebSocketErrorEvent).code) {
+        console.error(`WebSocket Error Code: ${(event as WebSocketErrorEvent).code}`);
+      }
+      if ((event as WebSocketErrorEvent).reason) {
+        console.error(`WebSocket Error Reason: ${(event as WebSocketErrorEvent).reason}`);
+      }
+      reject(new Error(`WebSocket connection failed. Check console for details. URL: ${wsUrl}`));
     };
 
-    socket.onclose = () => {
-      console.log('WebSocket connection closed.');
+    socket.onclose = (event) => {
+      console.log(`WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason}`);
+      if (!event.wasClean) {
+        console.error('WebSocket connection closed unexpectedly.');
+      }
       socket = null;
     };
   });
@@ -71,7 +82,7 @@ export const sendWebSocketMessage = (text: string) => {
     };
     socket.send(JSON.stringify(message));
   } else {
-    console.error('WebSocket is not connected.');
+    console.error('WebSocket is not connected or is in a closing state.');
   }
 };
 
@@ -80,7 +91,19 @@ export const sendWebSocketMessage = (text: string) => {
  */
 export const disconnectWebSocket = () => {
   if (socket) {
+    console.log('Disconnecting WebSocket...');
     socket.close();
   }
 };
 
+// Define a minimal interface for WebSocketErrorEvent if it's not globally available
+interface WebSocketErrorEvent extends Event {
+  colno: number;
+  filename: string;
+  lineno: number;
+  message: string;
+  error: any;
+  // Custom properties often found in WebSocket errors
+  code?: number;
+  reason?: string;
+}

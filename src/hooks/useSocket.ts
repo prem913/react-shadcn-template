@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { useAppStore, type ChatMessage } from '../store/useAppStore';
 import {
   connectWebSocket,
-  disconnectWebSocket,
   sendWebSocketMessage,
   type LiveRunnerMessage,
 } from '../lib/api';
@@ -13,7 +12,6 @@ import {
  */
 export const useSocket = () => {
   const {
-    selectedApplication,
     addChatMessage,
     setConnectionStatus,
     addStreamedBotChunk,
@@ -21,7 +19,6 @@ export const useSocket = () => {
     setIsBotTyping,
     finalizeBotMessage,
   } = useAppStore((state) => ({
-    selectedApplication: state.selectedApplication,
     addChatMessage: state.addChatMessage,
     setConnectionStatus: state.setConnectionStatus,
     addStreamedBotChunk: state.addStreamedBotChunk,
@@ -33,11 +30,6 @@ export const useSocket = () => {
   const clientIdRef = useRef<string>(uuidv4()); // Stable client ID across re-renders
 
   useEffect(() => {
-    if (!selectedApplication) {
-      disconnectWebSocket();
-      setConnectionStatus('disconnected');
-      return;
-    }
 
     const handleIncomingMessage = (message: LiveRunnerMessage) => {
       console.log('Received message from server:', message);
@@ -51,9 +43,6 @@ export const useSocket = () => {
           break;
         case 'function_response':
           addBotFunctionCallOrResponse('function_response', message.data);
-          break;
-        case 'turn_finish':
-          finalizeBotMessage();
           break;
       }
     };
@@ -71,12 +60,7 @@ export const useSocket = () => {
 
     connect();
 
-    // Cleanup on component unmount or when the selected application changes
-    return () => {
-      disconnectWebSocket();
-      setConnectionStatus('disconnected');
-    };
-  }, [selectedApplication, setConnectionStatus, addStreamedBotChunk, addBotFunctionCallOrResponse, setIsBotTyping, finalizeBotMessage]);
+  }, [setConnectionStatus, addStreamedBotChunk, addBotFunctionCallOrResponse, setIsBotTyping, finalizeBotMessage]);
 
   const sendMessage = (text: string) => {
     if (!text.trim()) return;
