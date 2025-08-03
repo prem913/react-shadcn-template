@@ -18,6 +18,7 @@ export const useSocket = () => {
     addBotFunctionCallOrResponse,
     setIsBotTyping,
     finalizeBotMessage,
+    setIsModelThinking, // Destructure the new setter
   } = useAppStore((state) => ({
     addChatMessage: state.addChatMessage,
     setConnectionStatus: state.setConnectionStatus,
@@ -25,6 +26,7 @@ export const useSocket = () => {
     addBotFunctionCallOrResponse: state.addBotFunctionCallOrResponse,
     setIsBotTyping: state.setIsBotTyping,
     finalizeBotMessage: state.finalizeBotMessage,
+    setIsModelThinking: state.setIsModelThinking, // Get the new setter from the store
   }));
 
   const clientIdRef = useRef<string>(uuidv4()); // Stable client ID across re-renders
@@ -33,16 +35,23 @@ export const useSocket = () => {
 
     const handleIncomingMessage = (message: LiveRunnerMessage) => {
       console.log('Received message from server:', message);
-      setIsBotTyping(true); // Always set to typing when a message comes in
       switch (message.type) {
         case 'text':
+          setIsBotTyping(true); // Still show typing for text
+          setIsModelThinking(true); // Model is thinking while streaming text
           addStreamedBotChunk(message.data);
           break;
         case 'function_call':
+          setIsModelThinking(true); // Model is thinking while making a function call
           addBotFunctionCallOrResponse('function_call', message.data);
           break;
         case 'function_response':
+          setIsModelThinking(true); // Model is thinking while processing function response
           addBotFunctionCallOrResponse('function_response', message.data);
+          break;
+        case 'turn_complete':
+          setIsModelThinking(false); // Model is done thinking
+          finalizeBotMessage(); // Finalize any pending bot message (like streamed text)
           break;
       }
     };
@@ -55,12 +64,13 @@ export const useSocket = () => {
       } catch (error) {
         console.error('WebSocket connection failed:', error);
         setConnectionStatus('error');
+        setIsModelThinking(false); // Ensure thinking indicator is off on error
       }
     };
 
     connect();
 
-  }, [setConnectionStatus, addStreamedBotChunk, addBotFunctionCallOrResponse, setIsBotTyping, finalizeBotMessage]);
+  }, [setConnectionStatus, addStreamedBotChunk, addBotFunctionCallOrResponse, setIsBotTyping, finalizeBotMessage, setIsModelThinking]);
 
   const sendMessage = (text: string) => {
     if (!text.trim()) return;
@@ -73,6 +83,8 @@ export const useSocket = () => {
       type: 'text',
     };
     addChatMessage(userMessage);
+    setIsModelThinking(true); // Model starts thinking when user sends a message
+    setIsBotTyping(false); // Reset bot typing when user sends a message
 
     // Send the message via WebSocket
     sendWebSocketMessage(text);

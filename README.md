@@ -27,10 +27,10 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 
 ## Todo List
 
-- [x] Fix empty user side chat bubbles.
-- [ ] Make a separate chat bubble for each message of type text.
 
 ## Updates
 
 - **2023-10-27**: Addressed the issue with empty chat bubbles and "undefined" text data by aligning the `ChatMessage` interface and data flow between `ChatMessage.tsx` and `useAppStore.ts`. The `content` field is now correctly populated and consumed.
 - **2024-07-30**: Improved WebSocket connection robustness by adding detailed error logging and moving the WebSocket URL to an environment variable (`VITE_WEBSOCKET_URL`). Added a troubleshooting guide to `README.md` for common connection issues.
+- **2024-07-30**: Implemented expandable/collapsible chat bubbles for 'function_call' and 'function_response' types, added scrollability for 'text' type messages, and introduced a typing indicator in the chat window.
+- **2024-07-30**: Enhanced `FunctionCallBubble` to display a truncated argument summary when collapsed and increased the width of both `FunctionCallBubble` and `FunctionResponseBubble` for better readability.

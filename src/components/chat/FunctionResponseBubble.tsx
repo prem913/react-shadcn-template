@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import { ChevronDownIcon } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { Button } from "../ui/button";
 
 interface FunctionResponseData {
   name: string;
@@ -13,45 +16,64 @@ interface FunctionResponseData {
 interface FunctionResponseBubbleProps {
   data: string; // stringified JSON
   timestamp: string;
+  isUser: boolean;
 }
 
-export const FunctionResponseBubble: React.FC<FunctionResponseBubbleProps> = ({ data, timestamp }) => {
+export const FunctionResponseBubble: React.FC<FunctionResponseBubbleProps> = ({ data, timestamp, isUser }) => {
+  const [isOpen, setIsOpen] = useState(false);
   let parsedData: FunctionResponseData | null = null;
   try {
     parsedData = JSON.parse(data) as FunctionResponseData;
-    console.log('FunctionResponseBubble - Name:', parsedData.name); // Added console log
-    console.log('FunctionResponseBubble - Result:', parsedData.response.result); // Added console log
+    console.log('FunctionResponseBubble - Name:', parsedData.name);
+    console.log('FunctionResponseBubble - Result:', parsedData.response.result);
   } catch (e) {
     console.error("Failed to parse function response JSON:", e);
     return (
-      <Card className="max-w-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-50">
+      <Card className={cn("max-w-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-50", isUser ? "ml-auto" : "mr-auto")}>
         <CardHeader>
           <CardTitle className="text-sm font-semibold">Invalid Function Response Data</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="text-xs relative break-words">
           <p className="text-xs text-red-500">Error parsing function response: {data}</p>
+          <span className="absolute bottom-1 right-2 text-[0.6rem] text-gray-900/70 dark:text-gray-50/70">
+            {timestamp}
+          </span>
         </CardContent>
       </Card>
     );
   }
 
+  // Determine a summary for the collapsed state
+  const summary = parsedData.response.result ? `Result: ${parsedData.response.result.substring(0, 50)}${parsedData.response.result.length > 50 ? "..." : ""}` : "No result";
+
   return (
-    <Card className="max-w-md bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-50">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-semibold">Function Response</CardTitle>
-        <Badge className="bg-green-500 dark:bg-green-700 text-white">
-          {parsedData.name}
-        </Badge>
-      </CardHeader>
-      <CardContent className="text-xs relative">
-        <p className="font-medium mb-1">Result:</p>
-        <pre className="whitespace-pre-wrap break-all bg-green-50 dark:bg-green-800 p-2 rounded-md text-green-800 dark:text-green-200 mb-6">
-          <code>{parsedData.response.result}</code>
-        </pre>
-        <span className="absolute bottom-1 right-2 text-[0.6rem] text-green-900/70 dark:text-green-50/70">
-          {timestamp}
-        </span>
-      </CardContent>
+    <Card className={cn("max-w-xl bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-50", isUser ? "ml-auto" : "mr-auto", "shadow-sm", isUser ? "rounded-br-none" : "rounded-bl-none")}>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-2">
+          <CardTitle className="text-sm font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
+            {isOpen ? `Function Response: ${parsedData.name}` : `Response: ${summary}`}
+          </CardTitle>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm" className="w-9 p-0">
+              <ChevronDownIcon className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
+              <span className="sr-only">Toggle</span>
+            </Button>
+          </CollapsibleTrigger>
+        </CardHeader>
+        <CollapsibleContent className="overflow-hidden">
+          <CardContent className="text-xs relative p-3 pt-0 break-words">
+            <div className="font-medium mb-1">
+              <span>Result:</span>
+            </div>
+            <pre className="whitespace-pre-wrap break-all bg-green-50 dark:bg-green-800 p-2 rounded-md text-green-800 dark:text-green-200 mb-6 max-h-40 overflow-y-auto">
+              <code>{parsedData.response.result}</code>
+            </pre>
+            <span className="absolute bottom-1 right-2 text-[0.6rem] text-green-900/70 dark:text-green-50/70">
+              {timestamp}
+            </span>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 };

@@ -6,12 +6,12 @@ import { Skeleton } from '../ui/skeleton';
 import { cn } from '../../lib/utils';
 
 const ChatWindow: React.FC = () => {
-  const { chatMessages, isBotTyping } = useAppStore();
+  const { chatMessages, isModelThinking } = useAppStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
+  }, [chatMessages, isModelThinking]); // Add isModelThinking to dependency array to scroll when thinking starts/stops
 
   return (
     <ScrollArea className="flex-1 h-full p-4">
@@ -19,7 +19,7 @@ const ChatWindow: React.FC = () => {
         {chatMessages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
-        {isBotTyping && (
+        {isModelThinking && (
           <div className="flex w-full mb-2 justify-start">
             <div
               className={cn(

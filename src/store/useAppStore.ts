@@ -16,11 +16,13 @@ type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 interface AppState {
   chatMessages: ChatMessage[];
   isBotTyping: boolean;
+  isModelThinking: boolean; // Added new state variable
   connectionStatus: ConnectionStatus;
 
   addChatMessage: (message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
   setConnectionStatus: (status: ConnectionStatus) => void;
   setIsBotTyping: (isTyping: boolean) => void;
+  setIsModelThinking: (isThinking: boolean) => void; // Setter for the new state variable
   addStreamedBotChunk: (content: string) => void;
   addBotFunctionCallOrResponse: (type: 'function_call' | 'function_response', data: any) => void;
   finalizeBotMessage: () => void;
@@ -31,6 +33,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     { id: 'initial-bot', sender: 'bot', content: 'Hello! How can I help you?', timestamp: new Date(), type: 'text' },
   ],
   isBotTyping: false,
+  isModelThinking: false, // Initialize new state variable
   connectionStatus: 'disconnected',
 
   addChatMessage: (message) => {
@@ -41,6 +44,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setConnectionStatus: (status) => set({ connectionStatus: status }),
   setIsBotTyping: (isTyping) => set({ isBotTyping: isTyping }),
+  setIsModelThinking: (isThinking) => set({ isModelThinking: isThinking }), // Implementation of the setter
 
   addStreamedBotChunk: (content) => {
     set((state) => {

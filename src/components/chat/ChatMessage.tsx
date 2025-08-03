@@ -45,7 +45,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
   }).format(message.timestamp);
 
   // Base styles for chat bubbles
-  const commonBubbleClasses = "p-3 rounded-lg max-w-[70%] mb-2";
+  const commonBubbleClasses = "p-3 rounded-lg max-w-[70%] mb-2 break-words"; // Added break-words here
 
   const getBubbleClasses = () => {
     // Original background logic for text messages
@@ -67,18 +67,18 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
 
   switch (message.type) {
     case 'text':
-      console.log('ChatMessage - Text Data:', (message as TextMessage).content); // Changed to message.content
+      console.log('ChatMessage - Text Data:', (message as TextMessage).content);
       return (
         <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
           <Card className={getBubbleClasses()}>
-            <CardContent className="p-0 text-sm min-h-[20px]">
+            <CardContent className="p-0 text-sm max-h-[200px] overflow-y-auto break-words">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {(message as TextMessage).content}
               </ReactMarkdown>
               <span
                 className={cn(
                   'block text-right text-xs mt-1',
-                  isUser ? 'text-white/70' : 'text-muted-foreground' // Assuming muted-foreground is appropriate for AI timestamps
+                  isUser ? 'text-white/70' : 'text-muted-foreground'
                 )}
               >
                 {formattedTimestamp}
@@ -90,13 +90,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     case 'function_call':
       return (
         <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
-          <FunctionCallBubble data={message.data} timestamp={formattedTimestamp} />
+          <FunctionCallBubble data={message.data} timestamp={formattedTimestamp} isUser={isUser} />
         </div>
       );
     case 'function_response':
       return (
         <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
-          <FunctionResponseBubble data={message.data} timestamp={formattedTimestamp} />
+          <FunctionResponseBubble data={message.data} timestamp={formattedTimestamp} isUser={isUser} />
         </div>
       );
     default:
@@ -104,7 +104,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
           <div className={`${getBubbleClasses()} bg-red-200 text-red-800`}>
             <p>Unknown message type: {message.type}</p>
-            <pre>{(message as any).data || (message as any).content}</pre>
+            <pre className="break-words">{(message as any).data || (message as any).content}</pre>
           </div>
         </div>
       );
