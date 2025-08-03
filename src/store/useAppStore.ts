@@ -21,10 +21,10 @@ export interface Application {
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'bot';
-  content: string;
+  content: string; // Changed from 'data' to 'content'
   timestamp: Date;
   type: 'text' | 'function_call' | 'function_response';
-  data?: any;
+  data?: any; // Kept for function_call/response types
 }
 
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -42,8 +42,8 @@ interface AppState {
   setSelectedApplication: (app: Application | null) => void;
   setConnectionStatus: (status: ConnectionStatus) => void;
   setIsBotTyping: (isTyping: boolean) => void;
-  // Refactored to always create a new message
-  addBotMessage: (content: string, type?: 'text' | 'function_call' | 'function_response', data?: any) => void;
+  addStreamedBotChunk: (content: string) => void;
+  addBotFunctionCallOrResponse: (type: 'function_call' | 'function_response', data: any) => void;
   finalizeBotMessage: () => void;
 }
 
@@ -92,26 +92,54 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setConnectionStatus: (status) => set({ connectionStatus: status }),
-  setIsBotTyping: (isTyping) => set({ isTyping: isTyping }),
+  setIsBotTyping: (isTyping) => set({ isBotTyping: isTyping }),
 
-  // Refactored function: Always creates a new ChatMessage
-  addBotMessage: (content, type = 'text', data = undefined) => {
+  addStreamedBotChunk: (content) => {
     set((state) => {
-      const newBotMessage: ChatMessage = {
-        id: uuidv4(),
-        sender: 'bot',
-        content: content,
-        timestamp: new Date(),
-        type: type,
-        data: data,
-      };
-      return {
-        chatMessages: [...state.chatMessages, newBotMessage],
-        // isBotTyping should be managed separately now,
-        // typically set to true when bot starts and false when done.
-        // For individual message addition, we don't change typing state here.
-      };
+      const lastMessage = state.chatMessages[state.chatMessages.length - 1];
+      if (state.isBotTyping && lastMessage && lastMessage.sender === 'bot' && lastMessage.type === 'text') {
+        // Append to the last bot message if it's a text stream
+        return {
+          chatMessages: state.chatMessages.map((msg, index) =>
+            index === state.chatMessages.length - 1
+              ? { ...msg, content: msg.content + content }
+              : msg
+          ),
+        };
+      } else {
+        // Create a new bot message
+        return {
+          chatMessages: [
+            ...state.chatMessages,
+            {
+              id: uuidv4(),
+              sender: 'bot',
+              content: content,
+              timestamp: new Date(),
+              type: 'text',
+            },
+          ],
+          isBotTyping: true, // Start typing indicator for new message
+        };
+      }
     });
+  },
+
+  addBotFunctionCallOrResponse: (type, data) => {
+    set((state) => ({
+      chatMessages: [
+        ...state.chatMessages,
+        {
+          id: uuidv4(),
+          sender: 'bot',
+          content: '', // Content can be empty for function call/response as data holds the info
+          timestamp: new Date(),
+          type: type,
+          data: data,
+        },
+      ],
+      isBotTyping: true, // Bot is "typing" while processing function call/response
+    }));
   },
 
   finalizeBotMessage: () => {

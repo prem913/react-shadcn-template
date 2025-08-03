@@ -16,12 +16,18 @@ export const useSocket = () => {
     selectedApplication,
     addChatMessage,
     setConnectionStatus,
-    appendBotMessage,
+    addStreamedBotChunk,
+    addBotFunctionCallOrResponse,
+    setIsBotTyping,
+    finalizeBotMessage,
   } = useAppStore((state) => ({
     selectedApplication: state.selectedApplication,
     addChatMessage: state.addChatMessage,
     setConnectionStatus: state.setConnectionStatus,
-    appendBotMessage: state.addBotMessage,
+    addStreamedBotChunk: state.addStreamedBotChunk,
+    addBotFunctionCallOrResponse: state.addBotFunctionCallOrResponse,
+    setIsBotTyping: state.setIsBotTyping,
+    finalizeBotMessage: state.finalizeBotMessage,
   }));
 
   const clientIdRef = useRef<string>(uuidv4()); // Stable client ID across re-renders
@@ -35,10 +41,19 @@ export const useSocket = () => {
 
     const handleIncomingMessage = (message: LiveRunnerMessage) => {
       console.log('Received message from server:', message);
+      setIsBotTyping(true); // Always set to typing when a message comes in
       switch (message.type) {
         case 'text':
-          // Append the text chunk to the current bot message
-          appendBotMessage(message.data);
+          addStreamedBotChunk(message.data);
+          break;
+        case 'function_call':
+          addBotFunctionCallOrResponse('function_call', message.data);
+          break;
+        case 'function_response':
+          addBotFunctionCallOrResponse('function_response', message.data);
+          break;
+        case 'turn_finish':
+          finalizeBotMessage();
           break;
       }
     };
@@ -61,7 +76,7 @@ export const useSocket = () => {
       disconnectWebSocket();
       setConnectionStatus('disconnected');
     };
-  }, [selectedApplication, setConnectionStatus, appendBotMessage]);
+  }, [selectedApplication, setConnectionStatus, addStreamedBotChunk, addBotFunctionCallOrResponse, setIsBotTyping, finalizeBotMessage]);
 
   const sendMessage = (text: string) => {
     if (!text.trim()) return;

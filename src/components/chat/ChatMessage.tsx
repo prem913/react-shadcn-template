@@ -1,10 +1,35 @@
 import React from 'react';
-import { type ChatMessage as ChatMessageType } from '../../store/useAppStore';
 import { Card, CardContent } from '../ui/card';
 import { cn } from '../../lib/utils';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import FunctionCallBubble from './FunctionCallBubble';
+import { FunctionCallBubble } from './FunctionCallBubble';
+import { FunctionResponseBubble } from './FunctionResponseBubble';
+
+// Define TypeScript Interfaces
+interface BaseChatMessage {
+  type: string;
+  sender: 'user' | 'tool';
+  timestamp: Date;
+}
+
+interface FunctionCallMessage extends BaseChatMessage {
+  type: "function_call";
+  data: string; // stringified JSON of FunctionCallData
+}
+
+interface FunctionResponseMessage extends BaseChatMessage {
+  type: "function_response";
+  data: string; // stringified JSON of FunctionResponseData
+}
+
+interface TextMessage extends BaseChatMessage {
+  type: "text";
+  content: string; // The actual text content, changed from 'data' to 'content'
+}
+
+// Union type for all possible chat message types
+export type ChatMessageType = FunctionCallMessage | FunctionResponseMessage | TextMessage;
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -19,49 +44,71 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     hour12: false,
   }).format(message.timestamp);
 
-  return (
-    <div
-      className={cn(
-        'flex w-full mb-2',
-        isUser ? 'justify-end' : 'justify-start'
-      )}
-    >
-      {message.type === 'text' && (
-        <Card
-          className={cn(
-            'max-w-[70%] p-2 shadow-sm',
-            isUser
-              ? 'bg-blue-600 rounded-br-none text-white' // User: Blue background, white text
-              : 'bg-muted rounded-bl-none', // Agent: Muted background
-            {
-              // For agent text messages, override background to gray-700 and ensure white text
-              'bg-gray-700 text-white': !isUser && message.type === 'text',
-              // Ensure user text messages are explicitly white, though already in the main class
-              'text-white': isUser && message.type === 'text',
-            }
-          )}
-        >
-          <CardContent className="p-0 text-sm min-h-[20px]"> {/* Added min-height */}
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {message.content}
-            </ReactMarkdown>
-            <span
-              className={cn(
-                'block text-right text-xs mt-1',
-                isUser ? 'text-white/70' : 'text-muted-foreground'
-              )}
-            >
-              {formattedTimestamp}
-            </span>
-          </CardContent>
-        </Card>
-      )}
+  // Base styles for chat bubbles
+  const commonBubbleClasses = "p-3 rounded-lg max-w-[70%] mb-2";
 
-      {(message.type === 'function_call' || message.type === 'function_response') && (
-        <FunctionCallBubble message={message} isUser={isUser} />
-      )}
-    </div>
-  );
+  const getBubbleClasses = () => {
+    // Original background logic for text messages
+    if (message.type === 'text') {
+      return cn(
+        commonBubbleClasses,
+        isUser ? 'ml-auto bg-blue-600 text-white' : 'mr-auto bg-gray-700 text-white',
+        "shadow-sm", // Added shadow for text messages
+        isUser ? "rounded-br-none" : "rounded-bl-none"
+      );
+    } else {
+      // Default alignment for function call/response if not handled by their own components
+      return cn(
+        commonBubbleClasses,
+        isUser ? 'ml-auto' : 'mr-auto'
+      );
+    }
+  };
+
+  switch (message.type) {
+    case 'text':
+      console.log('ChatMessage - Text Data:', (message as TextMessage).content); // Changed to message.content
+      return (
+        <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
+          <Card className={getBubbleClasses()}>
+            <CardContent className="p-0 text-sm min-h-[20px]">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {(message as TextMessage).content}
+              </ReactMarkdown>
+              <span
+                className={cn(
+                  'block text-right text-xs mt-1',
+                  isUser ? 'text-white/70' : 'text-muted-foreground' // Assuming muted-foreground is appropriate for AI timestamps
+                )}
+              >
+                {formattedTimestamp}
+              </span>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    case 'function_call':
+      return (
+        <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
+          <FunctionCallBubble data={message.data} timestamp={formattedTimestamp} />
+        </div>
+      );
+    case 'function_response':
+      return (
+        <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
+          <FunctionResponseBubble data={message.data} timestamp={formattedTimestamp} />
+        </div>
+      );
+    default:
+      return (
+        <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
+          <div className={`${getBubbleClasses()} bg-red-200 text-red-800`}>
+            <p>Unknown message type: {message.type}</p>
+            <pre>{(message as any).data || (message as any).content}</pre>
+          </div>
+        </div>
+      );
+  }
 };
 
 export default ChatMessage;

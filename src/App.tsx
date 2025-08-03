@@ -72,7 +72,7 @@ function App() {
           <SidebarInset className="flex flex-col h-screen bg-background text-foreground">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h2 className="text-xl font-semibold">
-                {selectedApplication ? selectedApplication.name : 'Select an Application'}
+                {selectedApplication ? selectedApplication.name : 'Chatbot'}
               </h2>
               <Badge
                 variant={getConnectionBadgeVariant()}

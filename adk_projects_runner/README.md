@@ -58,4 +58,5 @@ yarn lint
 ### Todo List
 - [x] Understand and implement the user's specific request.
 - [x] Update this README with more specific project details as they become clear.
-- [ ] Implement new features as per user's request. (Waiting for user to provide details)
+- [x] Implement new features as per user's request: Implemented streaming of bot messages and improved handling of different message types (text, function_call, function_response) via WebSocket.
+- [ ] Implement the "Run Tool" functionality in `FunctionCallBubble.tsx` to trigger actual function execution.

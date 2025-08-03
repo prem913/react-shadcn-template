@@ -8,5 +8,9 @@
 
 ## Todo List
 
-- [ ] Fix empty user side chat bubbles.
+- [x] Fix empty user side chat bubbles.
 - [ ] Make a separate chat bubble for each message of type text.
+
+## Updates
+
+- **2023-10-27**: Addressed the issue with empty chat bubbles and "undefined" text data by aligning the `ChatMessage` interface and data flow between `ChatMessage.tsx` and `useAppStore.ts`. The `content` field is now correctly populated and consumed.

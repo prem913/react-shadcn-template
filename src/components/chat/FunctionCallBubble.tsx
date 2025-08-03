@@ -1,90 +1,63 @@
-import React from 'react';
-import { type ChatMessage as ChatMessageType } from '../../store/useAppStore';
-import { Card, CardContent } from '../ui/card';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '../ui/accordion';
-import { cn } from '../../lib/utils';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
 
-interface FunctionCallBubbleProps {
-  message: ChatMessageType;
-  isUser: boolean;
+interface FunctionCallData {
+  name: string;
+  args: {
+    [key: string]: any;
+  };
 }
 
-const FunctionCallBubble: React.FC<FunctionCallBubbleProps> = ({ message, isUser }) => {
-  const formattedTimestamp = new Intl.DateTimeFormat('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(message.timestamp);
+interface FunctionCallBubbleProps {
+  data: string; // stringified JSON
+  timestamp: string;
+}
 
-  // Determine background color based on message type and sender for consistency
-  const bubbleBgClass = cn(
-    isUser
-      ? 'bg-blue-600 text-white rounded-br-none'
-      : 'bg-muted rounded-bl-none',
-    {
-      // Prioritize distinct colors for function messages
-      'bg-purple-600 text-white': isUser && (message.type === 'function_call' || message.type === 'function_response'),
-      'bg-orange-600 text-white': !isUser && (message.type === 'function_call' || message.type === 'function_response'),
+export const FunctionCallBubble: React.FC<FunctionCallBubbleProps> = ({ data, timestamp }) => {
+  let parsedData: FunctionCallData | null = null;
+  try {
+    parsedData = JSON.parse(data) as FunctionCallData;
+    console.log('FunctionCallBubble - Name:', parsedData.name); // Added console log
+    console.log('FunctionCallBubble - Args:', parsedData.args); // Added console log
+  } catch (e) {
+    console.error("Failed to parse function call JSON:", e);
+    return (
+      <Card className="max-w-md bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-50">
+        <CardHeader>
+          <CardTitle className="text-sm font-semibold">Invalid Function Call Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-red-500">Error parsing function call: {data}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const handleRunTool = () => {
+    if (parsedData) {
+      console.log("Running tool:", parsedData.name, "with args:", parsedData.args);
+      // In a future step, this would trigger the actual function execution.
     }
-  );
-
-  const timestampClass = cn(
-    'block text-right text-xs mt-1',
-    isUser ? 'text-white/70' : 'text-muted-foreground'
-  );
-
-  const getSummary = () => {
-    if (message.type === 'function_call') {
-      const toolName = message.data?.tool_name || 'unknown_tool';
-      const functionName = message.data?.function_name || 'unknown_function';
-      const args = message.data?.args ? JSON.stringify(message.data.args) : '';
-      return `Function Call: ${toolName}.${functionName}(${args})`;
-    } else if (message.type === 'function_response') {
-      const toolName = message.data?.tool_name || 'unknown_tool';
-      const functionName = message.data?.function_name || 'unknown_function';
-      const resultSummary = message.data?.result
-        ? typeof message.data.result === 'string'
-          ? message.data.result.substring(0, 50) + (message.data.result.length > 50 ? '...' : '')
-          : 'Result Data'
-        : 'No Result';
-      return `Function Response from ${toolName}.${functionName}: ${resultSummary}`;
-    }
-    return 'Details'; // Fallback, though message.type should always be function_call or function_response here
   };
 
   return (
-    <div
-      className={cn(
-        'flex w-full mb-2',
-        isUser ? 'justify-end' : 'justify-start'
-      )}
-    >
-      <Card className={cn('max-w-[70%] p-2 shadow-sm', bubbleBgClass)}>
-        <CardContent className="p-0 text-sm">
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger className="text-left font-semibold">
-                {getSummary()}
-              </AccordionTrigger>
-              <AccordionContent>
-                <pre className="whitespace-pre-wrap text-wrap mt-2 p-2 bg-gray-800 text-white rounded-md overflow-auto max-h-40">
-                  <code>{JSON.stringify(message.data, null, 2)}</code>
-                </pre>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-          <span className={timestampClass}>
-            {formattedTimestamp}
-          </span>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className="max-w-md bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-50">
+      <CardHeader>
+        <CardTitle className="text-sm font-semibold">Function Call: {parsedData.name}</CardTitle>
+      </CardHeader>
+      <CardContent className="text-xs relative">
+        <p className="font-medium mb-1">Arguments:</p>
+        <pre className="whitespace-pre-wrap break-all bg-blue-50 dark:bg-blue-800 p-2 rounded-md text-blue-800 dark:text-blue-200 mb-6">
+          <code>{JSON.stringify(parsedData.args, null, 2)}</code>
+        </pre>
+        <Button onClick={handleRunTool} className="mt-2 w-full">
+          Run Tool
+        </Button>
+        <span className="absolute bottom-1 right-2 text-[0.6rem] text-blue-900/70 dark:text-blue-50/70">
+          {timestamp}
+        </span>
+      </CardContent>
+    </Card>
   );
 };
-
-export default FunctionCallBubble;
