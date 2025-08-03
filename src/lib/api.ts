@@ -3,7 +3,7 @@
  * Represents a message sent to or received from the WebSocket server.
  */
 export interface LiveRunnerMessage {
-  type: 'end' | 'text' | 'interrupted' | 'turn_complete';
+  type: 'end' | 'text' | 'interrupted' | 'turn_complete' | 'function_call' | 'function_response';
   data: string;
 }
 

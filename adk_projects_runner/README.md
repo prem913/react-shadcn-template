@@ -56,5 +56,6 @@ yarn lint
 ```
 
 ### Todo List
-- [ ] Understand and implement the user's specific request.
-- [ ] Update this README with more specific project details as they become clear.
+- [x] Understand and implement the user's specific request.
+- [x] Update this README with more specific project details as they become clear.
+- [ ] Implement new features as per user's request.
