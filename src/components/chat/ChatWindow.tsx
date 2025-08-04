@@ -7,7 +7,11 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '../../lib/utils';
 
-const ChatWindow: React.FC = () => {
+interface ChatWindowProps {
+  className?: string; // Add className prop
+}
+
+const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => { // Accept className prop
   const { chatMessages, isModelThinking } = useAppStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -16,7 +20,7 @@ const ChatWindow: React.FC = () => {
   }, [chatMessages, isModelThinking]); // Add isModelThinking to dependency array to scroll when thinking starts/stops
 
   return (
-    <div className="flex flex-col h-full"> {/* Main container for flex column layout */}
+    <div className={cn("flex flex-col", className)}> {/* Apply passed className here, remove h-full */}
       <ScrollArea className="flex-1 p-4"> {/* ScrollArea takes remaining height */}
         <div className="flex flex-col space-y-2">
           {chatMessages.map((message) => (
@@ -43,4 +47,4 @@ const ChatWindow: React.FC = () => {
   );
 };
 
-export default ChatWindow;
+export default ChatWindow; 

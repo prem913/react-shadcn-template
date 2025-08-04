@@ -39,3 +39,6 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 - **2024-07-30**: Modified `ChatWindow.tsx` to ensure `ChatInput` sticks to the bottom using flexbox.
 - **2024-07-30**: Implemented `clientId` persistence in `localStorage` within `useSocket.ts`.
 - **2024-07-30**: Updated `StateExplorer.tsx` to retrieve and display `clientId` directly from `localStorage`.
+- **2024-07-30**: Moved the "State Explorer" to the left side of the screen in `src/App.tsx`, making it always visible and separating it from the tabbed chat interface.
+- **2024-07-30**: Enhanced `StateExplorer.tsx` to parse and display both state data and conversation events from the API response in a tabbed interface, utilizing Accordion components for event details.
+- **2024-07-30**: Improved visual presentation of `functionCall`, `functionResponse`, and `thought` data within `StateExplorer.tsx` with distinct background colors, borders, and enhanced styling for clarity and professionalism.

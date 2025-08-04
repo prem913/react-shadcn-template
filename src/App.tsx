@@ -45,7 +45,6 @@ function App() {
         return 'Unknown';
     }
   };
-  const clientId = localStorage.getItem('clientId')
 
   return (
     <Router>
@@ -60,31 +59,33 @@ function App() {
           </Badge>
         </div>
 
-        <Tabs defaultValue="chat" className="w-full h-full flex flex-col">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="chat" asChild>
-              <Link to="/">Chat</Link>
-            </TabsTrigger>
-            <TabsTrigger value="state-explorer" asChild>
-              <Link to={`/state-explorer/${clientId || 'YOUR_CLIENT_ID'}`}>State Explorer</Link>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="chat" className="flex flex-col flex-grow h-full">
-            <Routes>
-              <Route path="/" element={
-                <div className="flex flex-col h-full justify-between"> {/* Added justify-between here */}
-                  <ChatWindow />
-                  <ChatInput />
-                </div>
-              } />
-            </Routes>
-          </TabsContent>
-          <TabsContent value="state-explorer" className="flex flex-col flex-grow">
-            <Routes>
-              <Route path="/state-explorer/:clientId" element={<StateExplorer />} />
-            </Routes>
-          </TabsContent>
-        </Tabs>
+        <div className="flex flex-grow overflow-hidden"> {/* Main content area using flexbox */}
+          {/* State Explorer - always on the left */}
+          <div className="w-1/3 border-r border-border overflow-y-auto">
+            <StateExplorer />
+          </div>
+
+          {/* Chat and other tabs - on the right */}
+          <Tabs defaultValue="chat" className="w-2/3 flex flex-col">
+            <TabsList className="grid w-full grid-cols-1"> {/* Only one tab now */}
+              <TabsTrigger value="chat" asChild>
+                <Link to="/">Chat</Link>
+              </TabsTrigger>
+              {/* Removed State Explorer tab trigger as it's now always visible */}
+            </TabsList>
+            <TabsContent value="chat" className="flex flex-col flex-grow h-full">
+              <Routes>
+                <Route path="/" element={
+                  <div className="flex flex-col h-full"> 
+                    <ChatWindow className="flex-grow" /> 
+                    <ChatInput /> 
+                  </div>
+                } />
+              </Routes>
+            </TabsContent>
+            {/* Removed State Explorer TabsContent */}
+          </Tabs>
+        </div>
       </div>
     </Router>
   );
