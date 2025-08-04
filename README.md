@@ -42,3 +42,8 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 - **2024-07-30**: Moved the "State Explorer" to the left side of the screen in `src/App.tsx`, making it always visible and separating it from the tabbed chat interface.
 - **2024-07-30**: Enhanced `StateExplorer.tsx` to parse and display both state data and conversation events from the API response in a tabbed interface, utilizing Accordion components for event details.
 - **2024-07-30**: Improved visual presentation of `functionCall`, `functionResponse`, and `thought` data within `StateExplorer.tsx` with distinct background colors, borders, and enhanced styling for clarity and professionalism.
+- **2024-07-30**: Integrated a new "File Explorer" feature, allowing users to view, save, and delete files directly from the UI. This feature includes API integrations (`/fs/structure`, `/fs/content`, `/fs/save`, `/fs/delete`) and a dedicated React component (`FileExplorer.tsx`) within a new tab in `App.tsx`.
+- **2024-07-30**: Added syntax highlighting to the File Explorer's file content view using `react-syntax-highlighter` and implemented an edit/view toggle for file content.
+- **2024-07-30**: Enhanced File Explorer visuals, replacing generic icons with `lucide-react` icons (folders in orange, files in blue) and refining hover effects for a smoother user experience.
+- **2024-07-30**: Fixed syntax errors and corrected the `calculateRelativePaths` function in `src/components/FileExplorer.tsx`.
+- **2024-07-30**: Updated `FileExplorer.tsx` to correctly extract file content from the `content` parameter of the `getFileContent` API response.

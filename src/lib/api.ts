@@ -121,3 +121,66 @@ interface WebSocketErrorEvent extends Event {
   code?: number;
   reason?: string;
 }
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
+export const getFileStructure = async (): Promise<any[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/fs/structure`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching file structure:", error);
+    throw error;
+  }
+};
+
+export const getFileContent = async (relativePath: string): Promise<string> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/fs/content?relative_path=${encodeURIComponent(relativePath)}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.content; // Extract content from the JSON response
+  } catch (error) {
+    console.error(`Error fetching content for ${relativePath}:`, error);
+    throw error;
+  }
+};
+
+export const saveFile = async (relativePath: string, code: string): Promise<string> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/fs/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ relative_path: relativePath, code: code }),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.text(); // Confirmation message
+  } catch (error) {
+    console.error(`Error saving ${relativePath}:`, error);
+    throw error;
+  }
+};
+
+export const deleteFile = async (relativePath: string): Promise<string> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/fs/delete?relative_path=${encodeURIComponent(relativePath)}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.text(); // Confirmation message
+  } catch (error) {
+    console.error(`Error deleting ${relativePath}:`, error);
+    throw error;
+  }
+};
