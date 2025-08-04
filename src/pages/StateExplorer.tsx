@@ -36,7 +36,36 @@ const StateExplorer: React.FC = () => {
   }, []);
 
   const renderMarkdownContent = (text: string) => {
-    return <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>;
+    return (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          code({node, className, children, ...props}) {
+            const match = /language-(\w+)/.exec(className || '')
+            return match ? (
+              <pre className="bg-gray-800 text-gray-100 p-2 rounded-md overflow-x-auto my-2">
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              </pre>
+            ) : (
+              <code className="bg-gray-700 text-gray-100 px-1 py-0.5 rounded" {...props}>
+                {children}
+              </code>
+            )
+          },
+          // For direct <pre> tags which might contain markdown
+          pre: ({children}) => (
+            <pre className="bg-gray-800 text-gray-100 p-2 rounded-md overflow-x-auto my-2">
+              {children}
+            </pre>
+          ),
+          p: ({children}) => <p className="text-gray-900">{children}</p>, // Ensure paragraphs have dark text
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    );
   };
 
   const renderObjectAsCards = (obj: Record<string, any>) => {
@@ -45,7 +74,7 @@ const StateExplorer: React.FC = () => {
         {Object.entries(obj).map(([key, value]) => (
           <Card key={key} className="bg-card-foreground/5 shadow-none border border-border">
             <CardHeader className="p-2 pb-0">
-              <CardTitle className="text-sm font-semibold text-foreground/80 capitalize">{key.replace(/_/g, ' ')}</CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900 capitalize">{key.replace(/_/g, ' ')}</CardTitle>
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <pre className="whitespace-pre-wrap text-xs bg-muted p-1 rounded-md overflow-auto max-h-36 text-gray-900">
