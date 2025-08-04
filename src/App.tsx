@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAppStore } from './store/useAppStore';
 import { useSocket } from './hooks/useSocket';
 import ChatWindow from './components/chat/ChatWindow';
@@ -12,7 +11,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
 function App() {
   const {
     connectionStatus,
-    clientId,
   } = useAppStore();
 
   // Initialize WebSocket connection
@@ -47,6 +45,7 @@ function App() {
         return 'Unknown';
     }
   };
+  const clientId = localStorage.getItem('clientId')
 
   return (
     <Router>
@@ -74,7 +73,7 @@ function App() {
             <Routes>
               <Route path="/" element={
                 <div className="flex flex-col h-full justify-between"> {/* Added justify-between here */}
-                  <ChatWindow className="flex-grow" />
+                  <ChatWindow />
                   <ChatInput />
                 </div>
               } />

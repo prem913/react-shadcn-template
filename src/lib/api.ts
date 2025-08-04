@@ -36,7 +36,7 @@ export const connectWebSocket = (clientId: string, onMessage: MessageHandler): P
 
     socket.onopen = () => {
       console.log('WebSocket connection established.');
-      resolve(socket);
+      resolve(socket!);  // eslint-disable-line
     };
 
     socket.onmessage = (event) => {

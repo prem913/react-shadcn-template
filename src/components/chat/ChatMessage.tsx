@@ -103,7 +103,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
       return (
         <div className={cn('flex w-full mb-2', isUser ? 'justify-end' : 'justify-start')}>
           <div className={`${getBubbleClasses()} bg-red-200 text-red-800`}>
-            <p>Unknown message type: {message.type}</p>
+            <p>Unknown message type</p>
             <pre className="break-words">{(message as any).data || (message as any).content}</pre>
           </div>
         </div>

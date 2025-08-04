@@ -28,7 +28,7 @@ interface AppState {
   finalizeBotMessage: () => void;
 }
 
-export const useAppStore = create<AppState>((set, get) => ({
+export const useAppStore = create<AppState>((set) => ({
   chatMessages: [
     { id: 'initial-bot', sender: 'bot', content: 'Hello! How can I help you?', timestamp: new Date(), type: 'text' },
   ],

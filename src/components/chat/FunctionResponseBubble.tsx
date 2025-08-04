@@ -19,7 +19,7 @@ interface FunctionResponseBubbleProps {
   isUser: boolean;
 }
 
-export const FunctionResponseBubble: React.FC<FunctionResponseBubbleProps> = ({ data, timestamp, isUser }) => {
+export const FunctionResponseBubble: React.FC<FunctionResponseBubbleProps> = ({ data, isUser }) => {
   const [isOpen, setIsOpen] = useState(false);
   let parsedData: FunctionResponseData | null = null;
   try {
