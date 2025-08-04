@@ -4,7 +4,6 @@ import ChatMessage from './ChatMessage';
 import { ScrollArea } from '../ui/scroll-area';
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '../../lib/utils';
-import ChatInput from './ChatInput'; // Import ChatInput
 
 const ChatWindow: React.FC = () => {
   const { chatMessages, isModelThinking } = useAppStore();
@@ -38,7 +37,6 @@ const ChatWindow: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
-      <ChatInput /> {/* ChatInput at the bottom */}
     </div>
   );
 };

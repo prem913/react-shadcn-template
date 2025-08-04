@@ -61,7 +61,7 @@ function App() {
           </Badge>
         </div>
 
-        <Tabs defaultValue="chat" className="w-full">
+        <Tabs defaultValue="chat" className="w-full h-full flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="chat" asChild>
               <Link to="/">Chat</Link>
@@ -70,12 +70,14 @@ function App() {
               <Link to={`/state-explorer/${clientId || 'YOUR_CLIENT_ID'}`}>State Explorer</Link>
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="chat" className="flex flex-col flex-grow">
+          <TabsContent value="chat" className="flex flex-col flex-grow h-full">
             <Routes>
-              <Route path="/" element={<>
-                <ChatWindow />
-                <ChatInput />
-              </>} />
+              <Route path="/" element={
+                <div className="flex flex-col h-full justify-between"> {/* Added justify-between here */}
+                  <ChatWindow className="flex-grow" />
+                  <ChatInput />
+                </div>
+              } />
             </Routes>
           </TabsContent>
           <TabsContent value="state-explorer" className="flex flex-col flex-grow">
