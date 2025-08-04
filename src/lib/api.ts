@@ -96,6 +96,20 @@ export const disconnectWebSocket = () => {
   }
 };
 
+/**
+ * Fetches the state for a given client ID.
+ * @param {string} clientId - The ID of the client.
+ * @returns {Promise<any>} A promise that resolves with the client's state data.
+ */
+export const getState = async (clientId: string): Promise<any> => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const response = await fetch(`${apiUrl}/state/${clientId}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch state for client ${clientId}: ${response.statusText}`);
+  }
+  return await response.json();
+};
+
 // Define a minimal interface for WebSocketErrorEvent if it's not globally available
 interface WebSocketErrorEvent extends Event {
   colno: number;

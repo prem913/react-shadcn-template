@@ -1,4 +1,4 @@
-import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
+import * as CollapsiblePrimitive from "lucide-react"
 
 function Collapsible({
   ...props
