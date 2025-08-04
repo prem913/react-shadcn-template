@@ -1,24 +1,27 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 
 export const useSocket = () => {
-  const { setConnectionStatus, clientId, setClientId } = useAppStore(); // Destructure clientId and setClientId
+  const { setConnectionStatus, clientId, setClientId, addChatMessage } = useAppStore(); // Add addChatMessage
+  const wsRef = useRef<WebSocket | null>(null); // Create a ref to hold the WebSocket instance
 
   const websocketUrl = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8000/ws';
 
   const connectSocket = useCallback(() => {
     setConnectionStatus('connecting');
 
-    let currentClientId = clientId; // Get clientId from store
+    let currentClientId = clientId;
     if (!currentClientId) {
-      // If clientId not in store, try localStorage
       currentClientId = localStorage.getItem('clientId');
       if (!currentClientId) {
-        // Generate a new clientId if not found anywhere
         currentClientId = 'client_' + Math.random().toString(36).substring(2, 15);
       }
-      localStorage.setItem('clientId', currentClientId); // Persist to localStorage
-      setClientId(currentClientId); // Update the store
+      localStorage.setItem('clientId', currentClientId);
+      setClientId(currentClientId);
+    }
+
+    if (wsRef.current) {
+      wsRef.current.close(); // Close existing connection if any
     }
 
     const ws = new WebSocket(`${websocketUrl}/${currentClientId}`);
@@ -31,7 +34,16 @@ export const useSocket = () => {
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
       console.log('WebSocket message received:', message);
-      // Add your message handling logic here
+      // Assuming the message format from the server is compatible with ChatMessage
+      // You might need to adjust this based on actual server message structure
+      if (message.type === 'text' || message.type === 'function_call' || message.type === 'function_response') {
+        addChatMessage({
+          sender: message.sender,
+          content: message.content || '', // Ensure content is not undefined for text
+          type: message.type,
+          data: message.data,
+        });
+      }
     };
 
     ws.onclose = (event) => {
@@ -42,19 +54,40 @@ export const useSocket = () => {
     ws.onerror = (error) => {
       console.error('WebSocket Error:', error);
       setConnectionStatus('error');
-      ws.close();
-    };
-
-    return () => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close();
+      if (wsRef.current) {
+        wsRef.current.close();
       }
     };
-  }, [setConnectionStatus, clientId, setClientId, websocketUrl]); // Add clientId to dependencies
+
+    wsRef.current = ws;
+
+    return () => {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.close();
+      }
+    };
+  }, [setConnectionStatus, clientId, setClientId, addChatMessage, websocketUrl]);
+
+  const sendMessage = useCallback((message: string) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      const chatMessage = {
+        id: 'user_' + Date.now(),
+        sender: 'user',
+        content: message,
+        timestamp: new Date().toISOString(),
+        type: 'text',
+      };
+      wsRef.current.send(JSON.stringify(chatMessage));
+      addChatMessage({ sender: 'user', content: message, type: 'text' });
+    } else {
+      console.warn('WebSocket is not connected. Message not sent.');
+    }
+  }, [addChatMessage]);
+
 
   useEffect(() => {
     connectSocket();
   }, [connectSocket]);
 
-  return { connectSocket };
+  return { connectSocket, sendMessage };
 };
