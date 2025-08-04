@@ -34,15 +34,15 @@ const StateExplorer: React.FC = () => {
   }, []);
 
   const renderContent = (content: any) => {
-    if (!content || !content.parts) return <p className="text-gray-500">No content parts</p>;
+    if (!content || !content.parts) return <p className="text-gray-900">No content parts</p>;
 
     return content.parts.map((part: any, index: number) => (
       <div key={index} className="mt-2 text-sm space-y-2">
-        {part.text && <p className="whitespace-pre-wrap p-2 rounded-md bg-gray-50 border border-gray-200">{part.text}</p>}
+        {part.text && <p className="whitespace-pre-wrap p-2 rounded-md bg-gray-50 border border-gray-200 text-gray-900">{part.text}</p>}
         {part.functionCall && (
           <div className="bg-blue-50 p-3 rounded-md border border-blue-200 border-l-4 border-l-blue-500 shadow-sm">
             <strong className="text-blue-700">Function Call:</strong> <span className="font-mono text-blue-800">{part.functionCall.name}</span>
-            <pre className="whitespace-pre-wrap text-xs bg-blue-100 p-2 rounded-md mt-1">
+            <pre className="whitespace-pre-wrap text-xs bg-blue-100 p-2 rounded-md mt-1 text-gray-900">
               {JSON.stringify(part.functionCall.args, null, 2)}
             </pre>
           </div>
@@ -50,14 +50,14 @@ const StateExplorer: React.FC = () => {
         {part.functionResponse && (
           <div className="bg-green-50 p-3 rounded-md border border-green-200 border-l-4 border-l-green-500 shadow-sm">
             <strong className="text-green-700">Function Response:</strong>
-            <pre className="whitespace-pre-wrap text-xs bg-green-100 p-2 rounded-md mt-1">
+            <pre className="whitespace-pre-wrap text-xs bg-green-100 p-2 rounded-md mt-1 text-gray-900">
               {JSON.stringify(part.functionResponse.response, null, 2)}
             </pre>
           </div>
         )}
         {part.thought && (
           <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200 border-l-4 border-l-yellow-500 shadow-sm">
-            <strong className="text-yellow-700">Thought:</strong> <p className="mt-1">{part.thought.reasoning}</p>
+            <strong className="text-yellow-700">Thought:</strong> <p className="mt-1 text-gray-900">{part.thought.reasoning}</p>
           </div>
         )}
       </div>
