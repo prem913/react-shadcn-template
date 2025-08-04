@@ -16,7 +16,7 @@ const StateExplorer: React.FC = () => {
   const [stateData, setStateData] = useState<any>(null);
   const [eventsData, setEventsData] = useState<any[]>([]); // New state for events
   const [error, setError] = useState<string | null>(null);
-  const [clientId, setClientId] = useState<string | null>(null);
+  const [_, setClientId] = useState<string | null>(null);
 
   useEffect(() => {
     const storedClientId = localStorage.getItem('clientId');
