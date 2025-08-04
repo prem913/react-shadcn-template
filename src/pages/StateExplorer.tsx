@@ -132,7 +132,6 @@ const StateExplorer: React.FC = () => {
 
   return (
     <ScrollArea className="h-full p-4">
-      {/* Removed the h1 tag */}
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
 
       <Tabs defaultValue="state" className="w-full">
