@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getState } from '../lib/api';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { ScrollArea } from '../components/ui/scroll-area';
 
 const StateExplorer: React.FC = () => {
   const [stateData, setStateData] = useState<any>(null);
@@ -12,7 +14,7 @@ const StateExplorer: React.FC = () => {
       setClientId(storedClientId);
       getState(storedClientId)
         .then(data => {
-          setStateData(data);
+          setStateData(data.state); // Access the 'state' object directly
         })
         .catch(err => {
           setError(err.message);
@@ -23,17 +25,40 @@ const StateExplorer: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-4">
+    <ScrollArea className="h-full p-4">
       <h1 className="text-2xl font-bold mb-4">State Explorer for Client ID: {clientId || 'N/A'}</h1>
       {error && <p className="text-red-500">Error: {error}</p>}
       {stateData ? (
-        <pre className="bg-gray-100 p-4 rounded-md overflow-auto">
-          {JSON.stringify(stateData, null, 2)}
-        </pre>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Object.entries(stateData).map(([key, value]) => (
+            <Card key={key}>
+              <CardHeader>
+                <CardTitle className="capitalize">{key.replace(/_/g, ' ')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {value !== null && typeof value !== 'undefined' ? (
+                  typeof value === 'string' ? (
+                    <pre className="whitespace-pre-wrap text-sm bg-muted p-2 rounded-md overflow-auto max-h-48">
+                      {value}
+                    </pre>
+                  ) : (
+                    <pre className="whitespace-pre-wrap text-sm bg-muted p-2 rounded-md overflow-auto max-h-48">
+                      {JSON.stringify(value, null, 2)}
+                    </pre>
+                  )
+                ) : (
+                  <pre className="whitespace-pre-wrap text-sm bg-muted p-2 rounded-md overflow-auto max-h-48">
+                    N/A
+                  </pre>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : (
         !error && <p>Loading state data...</p>
       )}
-    </div>
+    </ScrollArea>
   );
 };
 
