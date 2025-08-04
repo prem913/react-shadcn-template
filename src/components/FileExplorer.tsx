@@ -146,7 +146,7 @@ const FileExplorer: React.FC = () => {
             return a.name.localeCompare(b.name);
           })
           .map(item => (
-            <li key={item.id} className="cursor-pointer p-1 rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground">
+            <li key={item.id} className="cursor-pointer p-2 rounded-lg transition-colors duration-200 hover:bg-primary/10">
               <span onClick={() => handleFileClick(item)} className="flex items-center">
                 {item.type === 'directory' ? <Folder className="inline-block mr-2 h-4 w-4 text-orange-500" /> : <FileText className="inline-block mr-2 h-4 w-4 text-blue-500" />} {item.name}
               </span>

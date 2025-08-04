@@ -49,3 +49,4 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 - **2024-07-30**: Updated `FileExplorer.tsx` to correctly extract file content from the `content` parameter of the `getFileContent` API response.
 - **2024-07-30**: Refactored application layout to move all primary navigation (Chat, State, Files) into a resizable left sidebar, replacing the previous tabbed interface in `App.tsx` for a more professional and streamlined user experience. A new `Sidebar` component was created to manage this navigation.
 - **2024-07-30**: Added a "Reconnect" button that appears when the WebSocket is disconnected or in an error state, allowing users to manually re-establish the connection.
+- **2024-07-30**: Updated `FileExplorer.tsx` to enhance the visual appeal of file system entries and eliminate the jarring white hover effect, replacing it with a subtle, theme-consistent highlight using `hover:bg-primary/10`.

@@ -1,93 +1,97 @@
-import { useEffect, useCallback, useRef } from 'react';
-import { useAppStore } from '../store/useAppStore';
+import { useEffect, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { useAppStore, type ChatMessage } from '../store/useAppStore';
+import {
+  connectWebSocket,
+  sendWebSocketMessage,
+  type LiveRunnerMessage,
+} from '../lib/api';
 
+/**
+ * A custom hook to manage the WebSocket connection for the chat application.
+ */
 export const useSocket = () => {
-  const { setConnectionStatus, clientId, setClientId, addChatMessage } = useAppStore(); // Add addChatMessage
-  const wsRef = useRef<WebSocket | null>(null); // Create a ref to hold the WebSocket instance
+  const {
+    addChatMessage,
+    setConnectionStatus,
+    addStreamedBotChunk,
+    addBotFunctionCallOrResponse,
+    setIsBotTyping,
+    finalizeBotMessage,
+    setIsModelThinking, // Destructure the new setter
+  } = useAppStore((state) => ({
+    addChatMessage: state.addChatMessage,
+    setConnectionStatus: state.setConnectionStatus,
+    addStreamedBotChunk: state.addStreamedBotChunk,
+    addBotFunctionCallOrResponse: state.addBotFunctionCallOrResponse,
+    setIsBotTyping: state.setIsBotTyping,
+    finalizeBotMessage: state.finalizeBotMessage,
+    setIsModelThinking: state.setIsModelThinking, // Get the new setter from the store
+  }));
 
-  const websocketUrl = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8000/ws';
-
-  const connectSocket = useCallback(() => {
-    setConnectionStatus('connecting');
-
-    let currentClientId = clientId;
-    if (!currentClientId) {
-      currentClientId = localStorage.getItem('clientId');
-      if (!currentClientId) {
-        currentClientId = 'client_' + Math.random().toString(36).substring(2, 15);
-      }
-      localStorage.setItem('clientId', currentClientId);
-      setClientId(currentClientId);
-    }
-
-    if (wsRef.current) {
-      wsRef.current.close(); // Close existing connection if any
-    }
-
-    const ws = new WebSocket(`${websocketUrl}/${currentClientId}`);
-
-    ws.onopen = () => {
-      console.log('WebSocket Connected');
-      setConnectionStatus('connected');
-    };
-
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log('WebSocket message received:', message);
-      // Assuming the message format from the server is compatible with ChatMessage
-      // You might need to adjust this based on actual server message structure
-      if (message.type === 'text' || message.type === 'function_call' || message.type === 'function_response') {
-        addChatMessage({
-          sender: message.sender,
-          content: message.content || '', // Ensure content is not undefined for text
-          type: message.type,
-          data: message.data,
-        });
+  const clientIdRef = useRef<string>(null); // Change to null initially
+    const handleIncomingMessage = (message: LiveRunnerMessage) => {
+      console.log('Received message from server:', message);
+      switch (message.type) {
+        case 'text':
+          setIsBotTyping(true); // Still show typing for text
+          setIsModelThinking(true); // Model is thinking while streaming text
+          addStreamedBotChunk(message.data);
+          break;
+        case 'function_call':
+          setIsModelThinking(true); // Model is thinking while making a function call
+          addBotFunctionCallOrResponse('function_call', message.data);
+          break;
+        case 'function_response':
+          setIsModelThinking(true); // Model is thinking while processing function response
+          addBotFunctionCallOrResponse('function_response', message.data);
+          break;
+        case 'turn_complete':
+          setIsModelThinking(false); // Model is done thinking
+          finalizeBotMessage(); // Finalize any pending bot message (like streamed text)
+          break;
       }
     };
 
-    ws.onclose = (event) => {
-      console.log('WebSocket Disconnected:', event);
-      setConnectionStatus('disconnected');
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket Error:', error);
-      setConnectionStatus('error');
-      if (wsRef.current) {
-        wsRef.current.close();
+    const connect = async () => {
+      setConnectionStatus('connecting');
+      try {
+        // Use clientIdRef.current which is now guaranteed to be set
+        await connectWebSocket(clientIdRef.current!, handleIncomingMessage);
+        setConnectionStatus('connected');
+      } catch (error) {
+        console.error('WebSocket connection failed:', error);
+        setConnectionStatus('error');
+        setIsModelThinking(false); // Ensure thinking indicator is off on error
       }
     };
-
-    wsRef.current = ws;
-
-    return () => {
-      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-        wsRef.current.close();
-      }
-    };
-  }, [setConnectionStatus, clientId, setClientId, addChatMessage, websocketUrl]);
-
-  const sendMessage = useCallback((message: string) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      const chatMessage = {
-        id: 'user_' + Date.now(),
-        sender: 'user',
-        content: message,
-        timestamp: new Date().toISOString(),
-        type: 'text',
-      };
-      wsRef.current.send(JSON.stringify(chatMessage));
-      addChatMessage({ sender: 'user', content: message, type: 'text' });
-    } else {
-      console.warn('WebSocket is not connected. Message not sent.');
-    }
-  }, [addChatMessage]);
-
-
   useEffect(() => {
-    connectSocket();
-  }, [connectSocket]);
+    let currentClientId = localStorage.getItem('clientId');
+    if (!currentClientId) {
+      currentClientId = uuidv4();
+      localStorage.setItem('clientId', currentClientId);
+    }
+    clientIdRef.current = currentClientId;
 
-  return { connectSocket, sendMessage };
+
+  }, [setConnectionStatus, addStreamedBotChunk, addBotFunctionCallOrResponse, setIsBotTyping, finalizeBotMessage, setIsModelThinking]);
+
+  const sendMessage = (text: string) => {
+    if (!text.trim()) return;
+    const userMessage: ChatMessage = {
+      id: uuidv4(),
+      sender: 'user',
+      content: text,
+      timestamp: new Date(),
+      type: 'text',
+    };
+    addChatMessage(userMessage);
+    setIsModelThinking(true); // Model starts thinking when user sends a message
+    setIsBotTyping(false); // Reset bot typing when user sends a message
+
+    // Send the message via WebSocket
+    sendWebSocketMessage(text);
+  };
+
+  return { sendMessage, connectSocket : connect };
 };

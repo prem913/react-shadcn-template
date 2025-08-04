@@ -10,6 +10,7 @@ import FileExplorer from './components/FileExplorer';
 import { Sidebar } from './components/SideBar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './components/ui/resizable';
 import { Button } from './components/ui/button'; // Import Button
+import { useEffect } from 'react';
 
 function App() {
   const { connectionStatus } = useAppStore();
@@ -67,6 +68,9 @@ function App() {
     //   href: "/events",
     // },
   ];
+  useEffect(()=>{
+    connectSocket()
+  },[])
 
   return (
     <Router>
