@@ -14,7 +14,7 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 
 2.  **Verify Server Status**: Ensure that your WebSocket server is running and accessible at the expected address. The default WebSocket URL is `ws://localhost:8000/ws/<clientId>`. If your server is running on a different port or host, you'll need to configure it.
 
-3.  **Check Network Issues**: Temporary network problems can prevent WebSocket connections. Try restarting your local network connection or testing from a different network if possible.
+3.  **Check Network Issues**: Temporary network problems can prevent WebSocket connections. Sometimes, local firewalls or antivirus software can block WebSocket connections. Temporarily disabling them (with caution) can help diagnose if this is the issue.
 
 4.  **Environment Variable Configuration**: The WebSocket URL is configured using the `VITE_WEBSOCKET_URL` environment variable. If you're deploying the application or running it in a different environment, ensure this variable is correctly set.
 
@@ -47,3 +47,5 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 - **2024-07-30**: Enhanced File Explorer visuals, replacing generic icons with `lucide-react` icons (folders in orange, files in blue) and refining hover effects for a smoother user experience.
 - **2024-07-30**: Fixed syntax errors and corrected the `calculateRelativePaths` function in `src/components/FileExplorer.tsx`.
 - **2024-07-30**: Updated `FileExplorer.tsx` to correctly extract file content from the `content` parameter of the `getFileContent` API response.
+- **2024-07-30**: Refactored application layout to move all primary navigation (Chat, State, Files) into a resizable left sidebar, replacing the previous tabbed interface in `App.tsx` for a more professional and streamlined user experience. A new `Sidebar` component was created to manage this navigation.
+- **2024-07-30**: Added a "Reconnect" button that appears when the WebSocket is disconnected or in an error state, allowing users to manually re-establish the connection.

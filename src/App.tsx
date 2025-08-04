@@ -4,18 +4,16 @@ import ChatWindow from './components/chat/ChatWindow';
 import ChatInput from './components/chat/ChatInput';
 import { Badge } from './components/ui/badge';
 import { cn } from './lib/utils';
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import StateExplorer from './pages/StateExplorer';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs';
-import FileExplorer from './components/FileExplorer'; // Import FileExplorer
+import FileExplorer from './components/FileExplorer';
+import { Sidebar } from './components/SideBar';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './components/ui/resizable';
+import { Button } from './components/ui/button'; // Import Button
 
 function App() {
-  const {
-    connectionStatus,
-  } = useAppStore();
-
-  // Initialize WebSocket connection
-  useSocket();
+  const { connectionStatus } = useAppStore();
+  const { connectSocket } = useSocket(); // Assuming useSocket exposes a connectSocket function
 
   const getConnectionBadgeVariant = () => {
     switch (connectionStatus) {
@@ -46,96 +44,77 @@ function App() {
         return 'Unknown';
     }
   };
+
+  const handleReconnect = () => {
+    connectSocket(); // Call the connectSocket function to attempt reconnection
+  };
+
+  const sidebarNavItems = [
+    {
+      title: "Chat",
+      href: "/",
+    },
+    {
+      title: "State",
+      href: "/state",
+    },
+    {
+      title: "Files",
+      href: "/files",
+    },
+    // {
+    //   title: "Events",
+    //   href: "/events",
+    // },
+  ];
 
   return (
     <Router>
-      <AppContent />
-    </Router>
-  );
-}
-
-function AppContent() {
-  const { connectionStatus } = useAppStore();
-  const navigate = useNavigate();
-
-  useSocket();
-
-  const getConnectionBadgeVariant = () => {
-    switch (connectionStatus) {
-      case 'connected':
-        return 'default';
-      case 'connecting':
-        return 'secondary';
-      case 'disconnected':
-        return 'destructive';
-      case 'error':
-        return 'destructive';
-      default:
-        return 'outline';
-    }
-  };
-
-  const getConnectionBadgeText = () => {
-    switch (connectionStatus) {
-      case 'connected':
-        return 'Connected';
-      case 'connecting':
-        return 'Connecting...';
-      case 'disconnected':
-        return 'Disconnected';
-      case 'error':
-        return 'Connection Error';
-      default:
-        return 'Unknown';
-    }
-  };
-
-  return (
-    <div className="flex flex-col h-screen bg-background text-foreground">
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <h2 className="text-xl font-semibold">Chatbot</h2>
-        <Badge
-          variant={getConnectionBadgeVariant()}
-          className={cn(connectionStatus === 'connecting' && 'animate-pulse')}
-        >
-          {getConnectionBadgeText()}
-        </Badge>
-      </div>
-
-      <div className="flex flex-grow overflow-hidden"> {/* Main content area using flexbox */}
-        {/* State Explorer - always on the left */}
-        <div className="w-1/3 border-r border-border overflow-y-auto">
-          <StateExplorer />
+      <div className="flex flex-col h-screen bg-background text-foreground">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h2 className="text-xl font-semibold">Chatbot</h2>
+          <div className="flex items-center space-x-2"> {/* Added a div for spacing */}
+            {(connectionStatus === 'disconnected' || connectionStatus === 'error') && (
+              <Button
+                onClick={handleReconnect}
+                variant="outline"
+                size="sm"
+              >
+                Reconnect
+              </Button>
+            )}
+            <Badge
+              variant={getConnectionBadgeVariant()}
+              className={cn(connectionStatus === 'connecting' && 'animate-pulse')}
+            >
+              {getConnectionBadgeText()}
+            </Badge>
+          </div>
         </div>
 
-        {/* Chat and other tabs - on the right */}
-        <Tabs defaultValue="chat" className="w-2/3 flex flex-col">
-          <TabsList className="grid w-full grid-cols-2"> {/* Updated grid-cols-2 */}
-            <TabsTrigger value="chat" onClick={() => navigate('/')}>
-              Chat
-            </TabsTrigger>
-            <TabsTrigger value="file-explorer" onClick={() => navigate('/files')}> {/* New TabTrigger for File Explorer */}
-              File Explorer
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="chat" className="flex flex-col flex-grow h-full">
-            <Routes>
-              <Route path="/" element={
-                <div className="flex flex-col h-full"> 
-                  <ChatWindow className="flex-grow" /> 
-                  <ChatInput /> 
-                </div>
-              } />
-            </Routes>
-          </TabsContent>
-          <TabsContent value="file-explorer" className="flex flex-col flex-grow h-full"> {/* New TabsContent for File Explorer */}
-            <Routes>
-              <Route path="/files" element={<FileExplorer />} />
-            </Routes>
-          </TabsContent>
-        </Tabs>
+        <ResizablePanelGroup direction="horizontal" className="flex-grow">
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+            <Sidebar items={sidebarNavItems} />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={80}>
+            <div className="flex flex-col h-full">
+              <Routes>
+                <Route path="/" element={
+                  <div className="flex flex-col h-full">
+                    <ChatWindow className="flex-grow" />
+                    <ChatInput />
+                  </div>
+                } />
+                <Route path="/state" element={<StateExplorer />} />
+                <Route path="/files" element={<FileExplorer />} />
+                {/* <Route path="/events" element={<div>Events Content Here</div>} /> */}
+              </Routes>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
-    </div>
+    </Router>
   );
 }
 

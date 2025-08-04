@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,16 +15,18 @@ type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 interface AppState {
   chatMessages: ChatMessage[];
   isBotTyping: boolean;
-  isModelThinking: boolean; // Added new state variable
+  isModelThinking: boolean;
   connectionStatus: ConnectionStatus;
+  clientId: string | null; // Added clientId to AppState
 
   addChatMessage: (message: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
   setConnectionStatus: (status: ConnectionStatus) => void;
   setIsBotTyping: (isTyping: boolean) => void;
-  setIsModelThinking: (isThinking: boolean) => void; // Setter for the new state variable
+  setIsModelThinking: (isThinking: boolean) => void;
   addStreamedBotChunk: (content: string) => void;
   addBotFunctionCallOrResponse: (type: 'function_call' | 'function_response', data: any) => void;
   finalizeBotMessage: () => void;
+  setClientId: (clientId: string | null) => void; // Added setClientId to AppState
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -33,8 +34,9 @@ export const useAppStore = create<AppState>((set) => ({
     { id: 'initial-bot', sender: 'bot', content: 'Hello! How can I help you?', timestamp: new Date(), type: 'text' },
   ],
   isBotTyping: false,
-  isModelThinking: false, // Initialize new state variable
+  isModelThinking: false,
   connectionStatus: 'disconnected',
+  clientId: null, // Initialize clientId
 
   addChatMessage: (message) => {
     set((state) => ({
@@ -44,13 +46,13 @@ export const useAppStore = create<AppState>((set) => ({
 
   setConnectionStatus: (status) => set({ connectionStatus: status }),
   setIsBotTyping: (isTyping) => set({ isBotTyping: isTyping }),
-  setIsModelThinking: (isThinking) => set({ isModelThinking: isThinking }), // Implementation of the setter
+  setIsModelThinking: (isThinking) => set({ isModelThinking: isThinking }),
+  setClientId: (clientId) => set({ clientId: clientId }), // Implementation of setClientId
 
   addStreamedBotChunk: (content) => {
     set((state) => {
       const lastMessage = state.chatMessages[state.chatMessages.length - 1];
       if (state.isBotTyping && lastMessage && lastMessage.sender === 'bot' && lastMessage.type === 'text') {
-        // Append to the last bot message if it's a text stream
         return {
           chatMessages: state.chatMessages.map((msg, index) =>
             index === state.chatMessages.length - 1
@@ -59,7 +61,6 @@ export const useAppStore = create<AppState>((set) => ({
           ),
         };
       } else {
-        // Create a new bot message
         return {
           chatMessages: [
             ...state.chatMessages,
@@ -71,7 +72,7 @@ export const useAppStore = create<AppState>((set) => ({
               type: 'text',
             },
           ],
-          isBotTyping: true, // Start typing indicator for new message
+          isBotTyping: true,
         };
       }
     });
@@ -90,7 +91,7 @@ export const useAppStore = create<AppState>((set) => ({
           data: data,
         },
       ],
-      isBotTyping: true, // Bot is "typing" while processing function call/response
+      isBotTyping: true,
     }));
   },
 
