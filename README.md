@@ -36,3 +36,6 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 - **2024-07-30**: Enhanced `FunctionCallBubble` to display a truncated argument summary when collapsed and increased the width of both `FunctionCallBubble` and `FunctionResponseBubble` for better readability.
 - **2024-07-30**: Added a new "State Explorer" tab to view raw JSON data from the `/state/{client_id}` endpoint. This feature utilizes `react-router-dom` for routing and includes a dedicated component to fetch and display the state.
 - **2024-07-30**: Updated the "State Explorer" tab to dynamically use the `clientId` from the application store in its link.
+- **2024-07-30**: Modified `ChatWindow.tsx` to ensure `ChatInput` sticks to the bottom using flexbox.
+- **2024-07-30**: Implemented `clientId` persistence in `localStorage` within `useSocket.ts`.
+- **2024-07-30**: Updated `StateExplorer.tsx` to retrieve and display `clientId` directly from `localStorage`.

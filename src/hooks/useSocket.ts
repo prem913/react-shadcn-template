@@ -29,9 +29,15 @@ export const useSocket = () => {
     setIsModelThinking: state.setIsModelThinking, // Get the new setter from the store
   }));
 
-  const clientIdRef = useRef<string>(uuidv4()); // Stable client ID across re-renders
+  const clientIdRef = useRef<string>(null); // Change to null initially
 
   useEffect(() => {
+    let currentClientId = localStorage.getItem('clientId');
+    if (!currentClientId) {
+      currentClientId = uuidv4();
+      localStorage.setItem('clientId', currentClientId);
+    }
+    clientIdRef.current = currentClientId;
 
     const handleIncomingMessage = (message: LiveRunnerMessage) => {
       console.log('Received message from server:', message);
@@ -59,7 +65,8 @@ export const useSocket = () => {
     const connect = async () => {
       setConnectionStatus('connecting');
       try {
-        await connectWebSocket(clientIdRef.current, handleIncomingMessage);
+        // Use clientIdRef.current which is now guaranteed to be set
+        await connectWebSocket(clientIdRef.current!, handleIncomingMessage);
         setConnectionStatus('connected');
       } catch (error) {
         console.error('WebSocket connection failed:', error);
