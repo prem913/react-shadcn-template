@@ -74,7 +74,7 @@ const StateExplorer: React.FC = () => {
         {Object.entries(obj).map(([key, value]) => (
           <Card key={key} className="bg-card-foreground/5 shadow-none border border-border">
             <CardHeader className="p-2 pb-0">
-              <CardTitle className="text-sm font-semibold text-gray-900 capitalize">{key.replace(/_/g, ' ')}</CardTitle>
+              <CardTitle className="text-sm font-semibold text-black capitalize">{key.replace(/_/g, ' ')}</CardTitle> {/* Changed text-gray-900 to text-black */}
             </CardHeader>
             <CardContent className="p-2 pt-0">
               <pre className="whitespace-pre-wrap text-xs bg-white p-1 rounded-md overflow-auto max-h-36 text-gray-900"> {/* Changed bg-muted to bg-white */}
@@ -132,7 +132,7 @@ const StateExplorer: React.FC = () => {
 
   return (
     <ScrollArea className="h-full p-4">
-      <h1 className="text-2xl font-bold mb-4">State Explorer for Client ID: {clientId || 'N/A'}</h1>
+      {/* Removed the h1 tag */}
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
 
       <Tabs defaultValue="state" className="w-full">
