@@ -40,23 +40,23 @@ const StateExplorer: React.FC = () => {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({node, className, children, ...props}) {
+          code({node, inline, className, children, ...props}) {
             const match = /language-(\w+)/.exec(className || '')
-            return match ? (
-              <pre className="bg-gray-800 text-gray-100 p-2 rounded-md overflow-x-auto my-2">
+            return !inline && match ? (
+              <pre className="bg-gray-100 text-gray-900 p-2 rounded-md overflow-x-auto my-2">
                 <code className={className} {...props}>
                   {children}
                 </code>
               </pre>
             ) : (
-              <code className="bg-gray-700 text-gray-100 px-1 py-0.5 rounded" {...props}>
+              <code className="bg-gray-200 text-gray-900 px-1 py-0.5 rounded" {...props}> {/* Changed text-gray-800 to text-gray-900 */}
                 {children}
               </code>
             )
           },
           // For direct <pre> tags which might contain markdown
           pre: ({children}) => (
-            <pre className="bg-gray-800 text-gray-100 p-2 rounded-md overflow-x-auto my-2">
+            <pre className="bg-gray-100 text-gray-900 p-2 rounded-md overflow-x-auto my-2">
               {children}
             </pre>
           ),
@@ -77,7 +77,7 @@ const StateExplorer: React.FC = () => {
               <CardTitle className="text-sm font-semibold text-gray-900 capitalize">{key.replace(/_/g, ' ')}</CardTitle>
             </CardHeader>
             <CardContent className="p-2 pt-0">
-              <pre className="whitespace-pre-wrap text-xs bg-muted p-1 rounded-md overflow-auto max-h-36 text-gray-900">
+              <pre className="whitespace-pre-wrap text-xs bg-white p-1 rounded-md overflow-auto max-h-36 text-gray-900"> {/* Changed bg-muted to bg-white */}
                 {renderMarkdownContent(typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value))}
               </pre>
             </CardContent>
@@ -170,7 +170,7 @@ const StateExplorer: React.FC = () => {
               ))}
             </div>
           ) : (
-            !error && <p className="text-center text-gray-700">Loading state data...</p>
+            !error && <p className="text-center text-black">Loading state data...</p>
           )}
         </TabsContent>
 
@@ -198,7 +198,7 @@ const StateExplorer: React.FC = () => {
               ))}
             </Accordion>
           ) : (
-            <p className="text-center text-gray-700">No event data available.</p>
+            <p className="text-center text-black">No event data available.</p>
           )}
         </TabsContent>
       </Tabs>
