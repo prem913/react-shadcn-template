@@ -40,9 +40,9 @@ const StateExplorer: React.FC = () => {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({node, inline, className, children, ...props}) {
+          code({node, className, children, ...props}) {
             const match = /language-(\w+)/.exec(className || '')
-            return !inline && match ? (
+            return  match ? (
               <pre className="bg-gray-100 text-gray-900 p-2 rounded-md overflow-x-auto my-2">
                 <code className={className} {...props}>
                   {children}
