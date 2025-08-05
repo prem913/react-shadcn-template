@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getState } from '../lib/api';
-import StateView from '../components/StateView';
+import EventsView from '../components/EventsView';
 
-const StateExplorer: React.FC = () => {
-  const [stateData, setStateData] = useState<any>(null);
+const EventsPage: React.FC = () => {
+  const [eventsData, setEventsData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [_, setClientId] = useState<string | null>(null);
 
@@ -13,7 +13,7 @@ const StateExplorer: React.FC = () => {
       setClientId(storedClientId);
       getState(storedClientId)
         .then(data => {
-          setStateData(data.state);
+          setEventsData(data.events || []);
         })
         .catch(err => {
           setError(err.message);
@@ -26,10 +26,10 @@ const StateExplorer: React.FC = () => {
   return (
     <div className="h-full p-4">
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
-      <h2 className="text-2xl font-bold mb-4">Application State</h2>
-      <StateView stateData={stateData} error={error} />
+      <h2 className="text-2xl font-bold mb-4">Conversation Events</h2>
+      <EventsView eventsData={eventsData} error={error} />
     </div>
   );
 };
 
-export default StateExplorer;
+export default EventsPage;

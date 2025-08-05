@@ -7,14 +7,15 @@ import { cn } from './lib/utils';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import StateExplorer from './pages/StateExplorer';
 import FileExplorer from './components/FileExplorer';
+import EventsPage from './pages/EventsPage'; // Import the new EventsPage
 import { Sidebar } from './components/SideBar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './components/ui/resizable';
-import { Button } from './components/ui/button'; // Import Button
+import { Button } from './components/ui/button';
 import { useEffect } from 'react';
 
 function App() {
   const { connectionStatus } = useAppStore();
-  const { connectSocket } = useSocket(); // Assuming useSocket exposes a connectSocket function
+  const { connectSocket } = useSocket();
 
   const getConnectionBadgeVariant = () => {
     switch (connectionStatus) {
@@ -47,7 +48,7 @@ function App() {
   };
 
   const handleReconnect = () => {
-    connectSocket(); // Call the connectSocket function to attempt reconnection
+    connectSocket();
   };
 
   const sidebarNavItems = [
@@ -63,11 +64,12 @@ function App() {
       title: "Files",
       href: "/files",
     },
-    // {
-    //   title: "Events",
-    //   href: "/events",
-    // },
+    {
+      title: "Events", // Uncommented and activated
+      href: "/events",
+    },
   ];
+
   useEffect(()=>{
     connectSocket()
   },[])
@@ -77,7 +79,7 @@ function App() {
       <div className="flex flex-col h-screen bg-background text-foreground">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="text-xl font-semibold">Chatbot</h2>
-          <div className="flex items-center space-x-2"> {/* Added a div for spacing */}
+          <div className="flex items-center space-x-2">
             {(connectionStatus === 'disconnected' || connectionStatus === 'error') && (
               <Button
                 onClick={handleReconnect}
@@ -112,7 +114,7 @@ function App() {
                 } />
                 <Route path="/state" element={<StateExplorer />} />
                 <Route path="/files" element={<FileExplorer />} />
-                {/* <Route path="/events" element={<div>Events Content Here</div>} /> */}
+                <Route path="/events" element={<EventsPage />} /> {/* Route to the new EventsPage */}
               </Routes>
             </div>
           </ResizablePanel>

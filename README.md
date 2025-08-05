@@ -51,3 +51,4 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 - **2024-07-30**: Added a "Reconnect" button that appears when the WebSocket is disconnected or in an error state, allowing users to manually re-establish the connection.
 - **2024-07-30**: Updated `FileExplorer.tsx` to enhance the visual appeal of file system entries and eliminate the jarring white hover effect, replacing it with a subtle, theme-consistent highlight using `hover:bg-primary/10`.
 - **2024-07-30**: Decoupled File Explorer state and event handling by migrating its logic to a dedicated slice within the Zustand store (`src/store/useAppStore.ts`), improving modularity and maintainability of `src/components/FileExplorer.tsx`.
+- **2024-07-30**: Separated the "State" and "Events" views within `src/pages/StateExplorer.tsx` into distinct components (`src/components/StateView.tsx` and `src/components/EventsView.tsx`), enhancing modularity and clarity.
