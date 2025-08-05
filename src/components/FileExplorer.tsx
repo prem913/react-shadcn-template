@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { getFileStructure, getFileContent, saveFile, deleteFile } from '../lib/api';
+import React, { useEffect } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import {
@@ -16,123 +15,40 @@ import { FileText, Folder, Save, Pencil, Trash2 } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
-interface FileEntry {
-  id: number;
-  name: string;
-  type: 'file' | 'directory';
-  parent_id: number | null;
-  relativePath?: string; // Add relativePath for easier handling
-}
+import { useAppStore, type FileEntry } from '../store/useAppStore';
 
 const FileExplorer: React.FC = () => {
-  const [fileStructure, setFileStructure] = useState<FileEntry[]>([]);
-  const [selectedFile, setSelectedFile] = useState<FileEntry | null>(null);
-  const [fileContent, setFileContent] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const {
+    fileStructure,
+    selectedFile,
+    fileContent,
+    isFileExplorerLoading,
+    fileExplorerError,
+    isFileViewDialogOpen,
+    isFileEditing,
+    fetchFileStructure,
+    selectFile,
+    updateFileContent,
+    saveEditedFile,
+    deleteSelectedFile,
+    setIsFileEditing,
+    setIsFileViewDialogOpen,
+  } = useAppStore(state => state.fileExplorer);
 
   useEffect(() => {
     fetchFileStructure();
-  }, []);
-
-  const fetchFileStructure = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await getFileStructure();
-      // Calculate relative paths for files
-      const structureWithRelativePaths = calculateRelativePaths(data);
-      setFileStructure(structureWithRelativePaths);
-    } catch (err) {
-      setError('Failed to fetch file structure.');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const calculateRelativePaths = (structure: FileEntry[]): FileEntry[] => {
-    const idMap = new Map<number, FileEntry>(structure.map(item => [item.id, item]));
-    const getPath = (item: FileEntry): string => {
-      if (item.parent_id === null || item.name === 'adk_projects_runner') { // Assuming 'adk_projects_runner' is the root
-        return item.name;
-      }
-      const parent = idMap.get(item.parent_id);
-      if (parent) {
-        return `${getPath(parent)}/${item.name}`;
-      }
-      return item.name;
-    };
-
-    return structure.map(item => ({
-      ...item,
-      relativePath: getPath(item).replace(/^adk_projects_runner\/?/, ''), // Remove base directory prefix
-    }));
-  };
+  }, [fetchFileStructure]);
 
   const handleFileClick = async (file: FileEntry) => {
-    if (file.type === 'file' && file.relativePath) {
-      setSelectedFile(file);
-      setIsLoading(true);
-      setError(null);
-      setIsEditing(false); // Always show highlighted view first
-      try {
-        const content = await getFileContent(file.relativePath);
-        setFileContent(content);
-        setIsDialogOpen(true);
-      } catch (err) {
-        setError(`Failed to fetch content for ${file.name}.`);
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    } else if (file.type === 'directory') {
-      // Optionally expand/collapse directories here if implementing a tree view
-      console.log('Clicked directory:', file.name);
-    }
+    await selectFile(file);
   };
 
   const handleSaveFile = async () => {
-    if (selectedFile && selectedFile.relativePath) {
-      setIsLoading(true);
-      setError(null);
-      try {
-        await saveFile(selectedFile.relativePath, fileContent);
-        alert('File saved successfully!');
-        setIsEditing(false); // Switch back to highlighted view
-        fetchFileStructure(); // Refresh structure in case new files were added/modified
-      } catch (err) {
-        setError(`Failed to save ${selectedFile.name}.`);
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    await saveEditedFile();
   };
 
   const handleDeleteFile = async () => {
-    if (selectedFile && selectedFile.relativePath) {
-      if (!confirm(`Are you sure you want to delete ${selectedFile.name}?`)) {
-        return;
-      }
-      setIsLoading(true);
-      setError(null);
-      try {
-        await deleteFile(selectedFile.relativePath);
-        alert('File deleted successfully!');
-        setIsDialogOpen(false);
-        setSelectedFile(null);
-        setFileContent('');
-        fetchFileStructure(); // Refresh structure
-      } catch (err) {
-        setError(`Failed to delete ${selectedFile.name}.`);
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    await deleteSelectedFile();
   };
 
   const renderFileTree = (parentId: number | null = null) => {
@@ -161,7 +77,6 @@ const FileExplorer: React.FC = () => {
     const parts = fileName.split('.');
     if (parts.length > 1) {
       const extension = parts[parts.length - 1];
-      // Basic mapping, can be expanded
       switch (extension) {
         case 'js':
         case 'jsx': return 'javascript';
@@ -188,22 +103,22 @@ const FileExplorer: React.FC = () => {
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-4">File Explorer</h2>
-      {isLoading && <p>Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {isFileExplorerLoading && <p>Loading...</p>}
+      {fileExplorerError && <p className="text-red-500">{fileExplorerError}</p>}
 
       <div className="border rounded-md p-4 max-h-96 overflow-auto">
         {renderFileTree()}
       </div>
 
       {selectedFile && (
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isFileViewDialogOpen} onOpenChange={setIsFileViewDialogOpen}>
           <DialogContent className="sm:max-w-[800px] h-[600px] flex flex-col">
             <DialogHeader>
               <DialogTitle>{selectedFile.name}</DialogTitle>
               <DialogDescription>{selectedFile.relativePath}</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4 flex-grow overflow-auto">
-              {!isEditing ? (
+              {!isFileEditing ? (
                 <SyntaxHighlighter
                   language={getFileLanguage(selectedFile.name)}
                   style={docco}
@@ -215,7 +130,7 @@ const FileExplorer: React.FC = () => {
               ) : (
                 <Textarea
                   value={fileContent}
-                  onChange={(e) => setFileContent(e.target.value)}
+                  onChange={(e) => updateFileContent(e.target.value)}
                   className="w-full h-full font-mono text-sm resize-none"
                 />
               )}
@@ -228,13 +143,13 @@ const FileExplorer: React.FC = () => {
                 </Button>
               </div>
               <div className="flex space-x-2">
-                {!isEditing && (
-                  <Button onClick={() => setIsEditing(true)} className="flex items-center space-x-2">
+                {!isFileEditing && (
+                  <Button onClick={() => setIsFileEditing(true)} className="flex items-center space-x-2">
                     <Pencil className="h-4 w-4" />
                     <span>Edit</span>
                   </Button>
                 )}
-                {isEditing && (
+                {isFileEditing && (
                   <Button type="submit" onClick={handleSaveFile} className="flex items-center space-x-2">
                     <Save className="h-4 w-4" />
                     <span>Save changes</span>
