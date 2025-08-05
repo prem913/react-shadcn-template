@@ -8,30 +8,30 @@ import { Skeleton } from '../ui/skeleton';
 import { cn } from '../../lib/utils';
 
 interface ChatWindowProps {
-  className?: string; // Add className prop
+  className?: string;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => { // Accept className prop
+const ChatWindow: React.FC<ChatWindowProps> = ({ className }) => {
   const { chatMessages, isModelThinking } = useAppStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages, isModelThinking]); // Add isModelThinking to dependency array to scroll when thinking starts/stops
+  }, [chatMessages, isModelThinking]);
 
   return (
-    <div className={cn("flex flex-col", className)}> {/* Apply passed className here, remove h-full */}
-      <ScrollArea className="flex-1 p-4"> {/* ScrollArea takes remaining height */}
-        <div className="flex flex-col space-y-2">
+    <div className={cn("flex flex-col-reverse h-full overflow-y-auto", className)}> {/* Modified for full height, reverse order, and scroll */}
+      <ScrollArea className="flex-grow p-4"> {/* Changed flex-1 to flex-grow for clarity */}
+        <div className="flex flex-col space-y-2 justify-end"> {/* justify-end to keep content at bottom */}
           {chatMessages.map((message) => (
-            <ChatMessage key={message.id} message={message} /> 
+            <ChatMessage key={message.id} message={message} />
           ))}
           {isModelThinking && (
             <div className="flex w-full mb-2 justify-start">
               <div
                 className={cn(
                   'max-w-[70%] p-2 bg-muted rounded-bl-none shadow-sm',
-                  'flex items-center space-x-2' // For the pulsing dots
+                  'flex items-center space-x-2'
                 )}
               >
                 <Skeleton className="h-2 w-2 rounded-full animate-pulse" />

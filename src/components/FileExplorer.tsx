@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 
-import { FileText, Folder, Save, Pencil, Trash2 } from 'lucide-react';
+import { FileText, Folder, Save, Pencil, Trash2, Loader2, TriangleAlert } from 'lucide-react'; // Added Loader2, TriangleAlert
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
@@ -101,29 +101,39 @@ const FileExplorer: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 flex flex-col h-full">
       <h2 className="text-2xl font-bold mb-4">File Explorer</h2>
-      {isFileExplorerLoading && <p>Loading...</p>}
-      {fileExplorerError && <p className="text-red-500">{fileExplorerError}</p>}
+      {isFileExplorerLoading && (
+        <div className="flex items-center justify-center p-4 text-black">
+          <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
+          <p>Fetching files from the seabed...</p>
+        </div>
+      )}
+      {fileExplorerError && (
+        <div className="flex items-center space-x-2 text-destructive p-4">
+          <TriangleAlert className="h-5 w-5" />
+          <span>{fileExplorerError}</span>
+        </div>
+      )}
 
-      <div className="border rounded-md p-4 max-h-96 overflow-auto">
+      <div className="border rounded-md p-4 flex-grow overflow-y-auto"> {/* Changed max-h-96 to flex-grow h-full overflow-y-auto */}
         {renderFileTree()}
       </div>
 
       {selectedFile && (
         <Dialog open={isFileViewDialogOpen} onOpenChange={setIsFileViewDialogOpen}>
-          <DialogContent className="sm:max-w-[800px] h-[600px] flex flex-col">
+          <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col"> {/* Changed h-[600px] to max-h-[90vh] */}
             <DialogHeader>
               <DialogTitle>{selectedFile.name}</DialogTitle>
               <DialogDescription>{selectedFile.relativePath}</DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4 flex-grow overflow-auto">
+            <div className="grid gap-4 py-4 flex-grow overflow-auto"> {/* Added flex-grow and overflow-auto here */}
               {!isFileEditing ? (
                 <SyntaxHighlighter
                   language={getFileLanguage(selectedFile.name)}
                   style={docco}
                   showLineNumbers={true}
-                  customStyle={{ width: '100%', height: '100%', overflow: 'auto' }}
+                  customStyle={{ width: '100%', height: '100%' }} // Removed overflow:'auto'
                 >
                   {fileContent}
                 </SyntaxHighlighter>

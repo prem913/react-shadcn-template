@@ -7,12 +7,12 @@ import { cn } from './lib/utils';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import StateExplorer from './pages/StateExplorer';
 import FileExplorer from './components/FileExplorer';
-import EventsPage from './pages/EventsPage'; // Import the new EventsPage
+import EventsPage from './pages/EventsPage';
 import { Sidebar } from './components/SideBar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from './components/ui/resizable';
 import { Button } from './components/ui/button';
 import { useEffect } from 'react';
-import { Cog as Squid } from 'lucide-react'; // New import for Squid icon
+import { Cog as Squid, MessageSquare, LayoutDashboard, Folder, CalendarClock } from 'lucide-react'; // Corrected and added new icons
 
 function App() {
   const { connectionStatus } = useAppStore();
@@ -56,18 +56,22 @@ function App() {
     {
       title: "Chat",
       href: "/",
+      icon: <MessageSquare className="h-5 w-5" />,
     },
     {
       title: "State",
       href: "/state",
+      icon: <LayoutDashboard className="h-5 w-5" />,
     },
     {
       title: "Files",
       href: "/files",
+      icon: <Folder className="h-5 w-5" />,
     },
     {
-      title: "Events", // Uncommented and activated
+      title: "Events",
       href: "/events",
+      icon: <CalendarClock className="h-5 w-5" />,
     },
   ];
 
