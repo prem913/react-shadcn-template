@@ -5,6 +5,7 @@ import EventsView from '../components/EventsView';
 const EventsPage: React.FC = () => {
   const [eventsData, setEventsData] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Added isLoading state
   const [_, setClientId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -17,9 +18,13 @@ const EventsPage: React.FC = () => {
         })
         .catch(err => {
           setError(err.message);
+        })
+        .finally(() => {
+          setIsLoading(false); // Set loading to false after fetch completes
         });
     } else {
       setError('No client ID found in local storage.');
+      setIsLoading(false); // Also set loading to false if no client ID
     }
   }, []);
 
@@ -27,7 +32,7 @@ const EventsPage: React.FC = () => {
     <div className="h-full p-4">
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
       <h2 className="text-2xl font-bold mb-4">Conversation Events</h2>
-      <EventsView eventsData={eventsData} error={error} />
+      <EventsView eventsData={eventsData} error={error} isLoading={isLoading} /> {/* Pass isLoading */}
     </div>
   );
 };
