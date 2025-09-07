@@ -33,13 +33,13 @@ export function Sidebar({ className, items }: SidebarProps) {
           className={cn(
             buttonVariants({ variant: "ghost" }),
             location.pathname === item.href
-              ? "bg-muted hover:bg-muted"
-              : "hover:bg-transparent hover:bg-primary/20", // Use primary/20 for a subtle, themed hover
+              ? "bg-muted hover:bg-muted group" // Added group for active state
+              : "hover:bg-transparent hover:bg-primary/20 group", // Added group for hover state
             "justify-start cursor-pointer transition-all duration-200",
             "flex items-center space-x-2" // Added flex and space-x-2 for icon alignment
           )}
         >
-          {item.icon} {item.title}
+          {item.icon && <span className="group-hover:animate-bounce-sm group-[.bg-muted]:animate-bounce-sm">{item.icon}</span>} {item.title}
         </a>
       ))}
     </nav>

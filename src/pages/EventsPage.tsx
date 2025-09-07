@@ -14,7 +14,12 @@ const EventsPage: React.FC = () => {
       setClientId(storedClientId);
       getState(storedClientId)
         .then(data => {
-          setEventsData(data.events || []);
+          // Sort events by timestamp in descending order (latest first)
+          const sortedEvents = (data.events || []).sort((a: any, b: any) => {
+            // Assuming timestamp is a number (Unix epoch) or can be converted to one
+            return b.timestamp - a.timestamp;
+          });
+          setEventsData(sortedEvents);
         })
         .catch(err => {
           setError(err.message);

@@ -27,9 +27,14 @@ If you're experiencing issues with the WebSocket connection, consider the follow
 
 ## Todo List
 
+*   Reverse the order of conversation events to display the latest on top.
 
 ## Updates
 
+- **2024-07-31**: Transformed the application's light theme to a stunning palette of blues and blue shades, ensuring optimal readability and a fresh, vibrant aesthetic.
+- **2024-07-31**: Rectified `tailwind.config` misconfiguration by deleting the erroneous `.js` file and correctly applying dark mode settings, custom colors, and animations within `tailwind.config.ts`. The application now boasts a stunning and vibrant magenta-themed UI with enhanced readability across both light and dark modes.
+- **2024-07-31**: Enforced light mode as the default theme by removing the 'dark' class from the HTML element and explicitly ensuring it's removed on application load, providing a consistent bright interface.
+- **2024-07-31**: Implemented a new color scheme with shades of magenta, purple, yellow, and dark night space for a more vibrant and distinct visual identity. Added a subtle bounce animation to sidebar navigation icons on hover/click, and a continuous rotation animation to the Takopi cog icon during WebSocket connection attempts for improved visual feedback.
 - **2023-10-27**: Addressed the issue with empty chat bubbles and "undefined" text data by aligning the `ChatMessage` interface and data flow between `ChatMessage.tsx` and `useAppStore.ts`. The `content` field is now correctly populated and consumed.
 - **2024-07-30**: Improved WebSocket connection robustness by adding detailed error logging and moving the WebSocket URL to an environment variable (`VITE_WEBSOCKET_URL`). Added a troubleshooting guide to `README.md` for common connection issues.
 - **2024-07-30**: Implemented expandable/collapsible chat bubbles for 'function_call' and 'function_response' types, added scrollability for 'text' type messages, and introduced a typing indicator in the chat window.

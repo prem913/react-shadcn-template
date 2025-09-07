@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* This custom theme setup defines CSS variables that can be used throughout your application.
+  It establishes a consistent design system for colors, radii, and other properties.
+*/
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -41,84 +43,136 @@
   --color-sidebar: var(--sidebar);
 }
 
+/* Root variables define the default (light) theme and the core color palette.
+  HSL format is used for easier color manipulation (e.g., changing lightness).
+*/
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+
+  /* Core Color Palette: Blue Shades */
+  --color-deep-blue: 210 100% 15%;     /* A very dark blue */
+  --color-royal-blue: 220 100% 40%;    /* A vibrant blue */
+  --color-sky-blue: 200 100% 70%;     /* A light, bright blue */
+  --color-powder-blue: 210 100% 95%;   /* Very light blue */
+
+  /* Light Theme Semantic Colors - Blue Focus */
+  --background: 0 0% 100%; /* Pure White */
+  --foreground: var(--color-deep-blue); /* Very dark blue for primary text */
+
+  --card: 0 0% 100%; /* White */
+  --card-foreground: var(--color-deep-blue); /* Dark blue text on card */
+
+  --popover: 0 0% 100%; /* White */
+  --popover-foreground: var(--color-deep-blue); /* Dark blue text on popover */
+
+  --primary: var(--color-royal-blue); /* Royal Blue as primary */
+  --primary-foreground: 0 0% 100%; /* White text on royal blue */
+
+  --secondary: var(--color-sky-blue); /* Sky Blue as secondary */
+  --secondary-foreground: var(--color-deep-blue); /* Dark blue for contrast */
+
+  --muted: var(--color-powder-blue); /* Very light blue for muted backgrounds */
+  --muted-foreground: var(--color-royal-blue); /* Royal blue for muted text */
+
+  --accent: var(--color-sky-blue); /* Sky Blue for accent */
+  --accent-foreground: var(--color-deep-blue); /* Dark blue text on accent */
+
+  --destructive: 0 84.2% 60.2%; /* Red */
+  --border: 210 100% 85%; /* Lighter blue border */
+  --input: 210 100% 85%; /* Lighter blue input */
+  --ring: var(--color-royal-blue); /* Royal blue for ring */
+
+  --chart-1: var(--color-royal-blue);
+  --chart-2: var(--color-sky-blue);
+  --chart-3: var(--color-deep-blue);
+  --chart-4: var(--color-powder-blue);
+  --chart-5: 200 50% 75%; /* Mid-tone blue */
+
+  --sidebar: 0 0% 100%; /* White sidebar */
+  --sidebar-foreground: var(--color-deep-blue); /* Dark text */
+  --sidebar-primary: var(--color-royal-blue); /* Royal blue active item */
+  --sidebar-primary-foreground: 0 0% 100%; /* White text on active item */
+  --sidebar-accent: var(--color-powder-blue); /* Lighter blue hover */
+  --sidebar-accent-foreground: var(--color-deep-blue); /* Dark text on hover */
+  --sidebar-border: 210 100% 85%; /* Blue border */
+  --sidebar-ring: var(--color-royal-blue);
 }
 
+/* The .dark class overrides the root variables to apply the dark theme.
+  This is the standard approach for Tailwind CSS dark mode.
+*/
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  /* Dark Theme Semantic Colors - unchanged from previous magenta theme */
+  --background: 256 100% 12.5%; /* Dark Purple/Black as background */
+  --foreground: 280 100% 90%; /* Light magenta for text */
+
+  --card: 268 76% 33%; /* Deep purple for cards */
+  --card-foreground: 280 100% 90%; /* Light magenta text on cards */
+
+  --popover: 268 76% 33%; /* Deep purple for popovers */
+  --popover-foreground: 280 100% 90%; /* Light magenta text on popovers */
+
+  --primary: 280 100% 63%; /* Magenta as primary */
+  --primary-foreground: 256 100% 12.5%; /* Dark text on magenta */
+
+  --secondary: 48 100% 50%; /* Yellow as secondary */
+  --secondary-foreground: 256 100% 12.5%; /* Dark text on yellow */
+
+  --muted: 256 100% 20%; /* Darker purple for muted backgrounds */
+  --muted-foreground: 280 100% 70%; /* Brighter magenta for muted text */
+
+  --accent: 268 76% 33%; /* Deep purple for accent */
+  --accent-foreground: 280 100% 90%; /* Light magenta text on accent */
+
+  --destructive: 0 62.8% 30.6%; /* Darker red */
+  --border: 256 100% 25%; /* Darker purple border */
+  --input: 256 100% 25%; /* Darker purple input */
+  --ring: 280 100% 63%; /* Magenta for ring */
+
+  --chart-1: 280 100% 63%;
+  --chart-2: 48 100% 50%;
+  --chart-3: 268 76% 33%;
+  --chart-4: 0 0% 98%; /* White */
+  --chart-5: 48 100% 70%; /* Lighter yellow */
+
+  --sidebar: 256 100% 12.5%; /* Dark sidebar */
+  --sidebar-foreground: 280 100% 90%; /* Light magenta text */
+  --sidebar-primary: 280 100% 63%; /* Magenta active item */
+  --sidebar-primary-foreground: 256 100% 12.5%; /* Dark text on active item */
+  --sidebar-accent: 256 100% 20%; /* Darker purple hover */
+  --sidebar-accent-foreground: 280 100% 90%; /* Light magenta text on hover */
+  --sidebar-border: 256 100% 25%; /* Darker purple border */
+  --sidebar-ring: 280 100% 63%;
 }
 
+/* Base layer customizations for global element styles.
+*/
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-body.dark {
-  background-color: hsl(0, 0%, 10%);
+/* Custom animations used in the application.
+*/
+@keyframes bounce-sm {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes rotate-spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -76,7 +76,8 @@ function App() {
   ];
 
   useEffect(() => {
-    connectSocket()
+    connectSocket();
+    document.documentElement.classList.remove('dark'); // Commander Tum's Order: Banish the darkness!
   }, [])
 
   return (
@@ -84,7 +85,7 @@ function App() {
       <div className="flex flex-col h-screen bg-background text-foreground">
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="text-2xl font-bold flex items-center text-primary">
-            <Squid className="inline-block mr-3 h-7 w-7" />
+            <Squid className={cn("inline-block mr-3 h-7 w-7", connectionStatus === 'connecting' && 'animate-rotate-spinner')} />
             Takopi
           </h2>
           <div className="flex items-center space-x-2">
